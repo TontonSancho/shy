@@ -44,6 +44,13 @@
 			<scope>system</scope>
 			<systemPath>${basedir}/src/main/lib/jMonkeyEngine3.jar</systemPath>
 		</dependency>
+		<dependency>
+			<groupId>com.jme3</groupId>
+			<artifactId>jbullet</artifactId>
+			<version>3.0</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/src/main/lib/lib/jME3-jbullet.jar</systemPath>
+		</dependency>
 	</dependencies>
 	
 </project>
