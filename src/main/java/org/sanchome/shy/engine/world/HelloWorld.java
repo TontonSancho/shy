@@ -9,7 +9,9 @@ import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.bullet.util.CollisionShapeFactory;
 import com.jme3.material.Material;
+import com.jme3.math.Vector2f;
 import com.jme3.renderer.Camera;
+import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Node;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.TerrainQuad;
@@ -77,8 +79,10 @@ public class HelloWorld implements IWorld {
 		 */
 		terrain.setMaterial(mat_terrain);
 		terrain.setLocalTranslation(0, -100, 0);
-		terrain.setLocalScale(2f, 0.5f, 2f);
+		terrain.setLocalScale(1f, 0.1f, 1f);
 		rootNode.attachChild(terrain);
+		
+	    terrain.setShadowMode(ShadowMode.Receive);
 		
 		/** 5. The LOD (level of detail) depends on were the camera is: */
 		List<Camera> cameras = new ArrayList<Camera>();
@@ -91,6 +95,25 @@ public class HelloWorld implements IWorld {
 		terrain.addControl(landscape);
 		
 		bulletAppState.getPhysicsSpace().add(terrain);
+	}
+	
+	public float getHeightAt(Vector2f queryXZ) {
+		float localT = terrain.getLocalTranslation().y;
+		float localS = terrain.getLocalScale().y;
+		float height = terrain.getHeight(queryXZ);
+		return localT + terrain.getHeight(queryXZ);
+	}
+	
+	public float getHeightAt(Vector2f queryXZ, float yOffset) {
+		return yOffset + getHeightAt(queryXZ);
+	}
+	
+	public float getHeightAt(float queryX, float queryZ) {
+		return getHeightAt(new Vector2f(queryX, queryZ));
+	}
+	
+	public float getHeightAt(float queryX, float queryZ, float yOffset) {
+		return getHeightAt(new Vector2f(queryX, queryZ), yOffset);
 	}
 
 }

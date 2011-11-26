@@ -1,10 +1,14 @@
 package org.sanchome.shy.engine.world;
 
-import com.jme3.asset.AssetManager;
-import com.jme3.bullet.BulletAppState;
-import com.jme3.renderer.Camera;
-import com.jme3.scene.Node;
+import org.sanchome.shy.engine.IInitable;
 
-public interface IWorld {
-	void init(AssetManager assetManager, Camera camera, Node rootNode, BulletAppState bulletAppState);
+import com.jme3.math.Vector2f;
+
+public interface IWorld extends IInitable {
+	
+	float getHeightAt(Vector2f queryXZ);
+	float getHeightAt(Vector2f queryXZ, float yOffset);
+	float getHeightAt(float queryX, float queryZ);
+	float getHeightAt(float queryX, float queryZ, float yOffset);
+	
 }

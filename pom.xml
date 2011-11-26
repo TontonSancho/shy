@@ -6,7 +6,7 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>SHY - Sheep Hate You</name>
 	<description>Sheep Hate You aims to be a simple and fun 3D FPS Game with sheep, you, and your right shoe.</description>
-	
+
 	<build>
 		<plugins>
 			<plugin>
@@ -22,6 +22,7 @@
 				<version>1.2.1</version>
 				<executions>
 					<execution>
+						<id>launchApplication</id>
 						<phase>test</phase>
 						<goals>
 							<goal>java</goal>
@@ -35,7 +36,7 @@
 			</plugin>
 		</plugins>
 	</build>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>com.jme3</groupId>
@@ -51,6 +52,20 @@
 			<scope>system</scope>
 			<systemPath>${basedir}/src/main/lib/lib/jME3-jbullet.jar</systemPath>
 		</dependency>
+		<dependency>
+			<groupId>com.bulletphysics</groupId>
+			<artifactId>jbullet</artifactId>
+			<version>1.0</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/src/main/lib/lib/jbullet.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>javax.vecmath</groupId>
+			<artifactId>vecmath</artifactId>
+			<version>1.4.0</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/src/main/lib/lib/vecmath.jar</systemPath>
+		</dependency>
 	</dependencies>
-	
+
 </project>

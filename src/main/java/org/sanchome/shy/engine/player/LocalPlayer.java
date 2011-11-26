@@ -1,9 +1,12 @@
 package org.sanchome.shy.engine.player;
 
+import org.sanchome.shy.engine.Application;
+
 import com.jme3.asset.AssetManager;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
+import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Node;
@@ -23,7 +26,13 @@ public class LocalPlayer implements IPlayer {
 		player.setJumpSpeed(20);
 		player.setFallSpeed(30);
 		player.setGravity(30);
-		player.setPhysicsLocation(new Vector3f(0, 10, 0));
+		player.setPhysicsLocation(
+				new Vector3f(
+						0.0f,
+						Application.getCurrentWorld().getHeightAt(0.0f, 0.0f, 3.0f),
+						0.0f
+					)
+			);
 		
 	    bulletAppState.getPhysicsSpace().add(player);
 	}
