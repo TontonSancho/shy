@@ -1,5 +1,7 @@
 package org.sanchome.shy.engine.entity;
 
+import org.sanchome.shy.engine.Application;
+
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.TextureKey;
 import com.jme3.bullet.BulletAppState;
@@ -32,21 +34,27 @@ public class Crate implements IEntity {
 		    Texture tex = assetManager.loadTexture(key);
 		    wall_mat.setTexture("ColorMap", tex);
 		}
+		
 		Geometry brick_geo = new Geometry("brick", BOX);
 		brick_geo.setMaterial(wall_mat);
 		rootNode.attachChild(brick_geo);
 	    /** Position the brick geometry  */
+		
+		float initialPositionX = (float)(500.0*Math.random())-250.0f;
+		float initialPositionZ = (float)(500.0*Math.random())-250.0f;
+		
 	    brick_geo.setLocalTranslation(
 	    		new Vector3f(
-	    				(float)(50.0*Math.random()),
-	    				(float)(50.0*Math.random()),
-	    				(float)(50.0*Math.random())
+	    				initialPositionX,
+	    				Application.getCurrentWorld().getHeightAt(initialPositionX, initialPositionZ, 1.0f),
+	    				initialPositionZ
 	    		)
 	    );
 	    /** Make brick physical with a mass > 0.0f. */
-	    RigidBodyControl brick_phy = new RigidBodyControl(2f);
+	    RigidBodyControl brick_phy = new RigidBodyControl(20f);
 	    /** Add physical brick to physics space. */
 	    brick_geo.addControl(brick_phy);
+	    brick_geo.setUserData("RigidBodyControl", brick_phy);
 	    bulletAppState.getPhysicsSpace().add(brick_phy);
 	    
 	    brick_geo.setShadowMode(ShadowMode.Cast);

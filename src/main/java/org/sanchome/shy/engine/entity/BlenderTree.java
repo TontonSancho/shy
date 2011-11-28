@@ -15,10 +15,11 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 
 public class BlenderTree implements IEntity {
-
+	
 	public void init(AssetManager assetManager, Camera camera, Node rootNode, BulletAppState bulletAppState) {
-		// TODO Auto-generated method stub
+		
 		Spatial model = assetManager.loadModel("models/blender/Tree.mesh.xml" );
+		
 		rootNode.attachChild(model);
 		
 		float initialPositionX = (float)(500.0*Math.random())-250.0f;
@@ -42,8 +43,8 @@ public class BlenderTree implements IEntity {
 		ccs.addChildShape(bcs, new Vector3f(-0.1f*initialScale, 1.25f*initialScale, 0.0f));
 		ccs.addChildShape(scs, new Vector3f(0.0f, 3.75f*initialScale, 0.0f));
 		
-		RigidBodyControl model_phy = new RigidBodyControl(ccs, 20f*initialScale);
-		model_phy.setFriction(20.0f);
+		RigidBodyControl model_phy = new RigidBodyControl(ccs, 10.0f*initialScale);
+		//model_phy.setFriction(20.0f);
 		/*
 		model_phy.setFriction(50.0f);
 		*/
@@ -53,10 +54,10 @@ public class BlenderTree implements IEntity {
 			);
 		*/
 		model.addControl(model_phy);
-	    bulletAppState.getPhysicsSpace().add(model_phy);
-	    
-	    model.setShadowMode(ShadowMode.Cast);
-		 
+		model.setUserData("RigidBodyControl", model_phy);
+		
+		bulletAppState.getPhysicsSpace().add(model_phy);
+		
+		model.setShadowMode(ShadowMode.Cast); 
 	}
-
 }

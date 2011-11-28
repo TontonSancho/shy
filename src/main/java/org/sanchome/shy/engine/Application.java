@@ -8,13 +8,17 @@ import org.sanchome.shy.engine.world.IWorld;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.bullet.BulletAppState;
+import com.jme3.bullet.BulletAppState.ThreadingType;
 import com.jme3.input.KeyInput;
+import com.jme3.input.MouseInput;
 import com.jme3.input.controls.KeyTrigger;
+import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
+import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.shadow.PssmShadowRenderer;
 import com.jme3.util.SkyFactory;
@@ -23,6 +27,7 @@ public class Application extends SimpleApplication {
 
 	private BulletAppState bulletAppState;
 	private static IWorld world;
+	private Node mobilesNode;
 	LocalPlayer localPlayer;
 
 	static public IWorld getCurrentWorld() {
@@ -38,40 +43,45 @@ public class Application extends SimpleApplication {
 		inputManager.deleteMapping("FLYCAM_StrafeLeft");
 		inputManager.deleteMapping("FLYCAM_Rise");
 		inputManager.deleteMapping("FLYCAM_StrafeRight");
-		inputManager.addMapping("FLYCAM_Forward", new KeyTrigger(KeyInput.KEY_Z));
-		inputManager.addMapping("FLYCAM_Lower", new KeyTrigger(KeyInput.KEY_S));
-		inputManager.addMapping("FLYCAM_StrafeLeft", new KeyTrigger(KeyInput.KEY_Q));
-		inputManager.addMapping("FLYCAM_StrafeRight", new KeyTrigger(KeyInput.KEY_D));
+		inputManager.addMapping("Forward", new KeyTrigger(KeyInput.KEY_Z));
+		inputManager.addMapping("Backward", new KeyTrigger(KeyInput.KEY_S));
+		inputManager.addMapping("Left", new KeyTrigger(KeyInput.KEY_Q));
+		inputManager.addMapping("Right", new KeyTrigger(KeyInput.KEY_D));
 		inputManager.addMapping("Jump", new KeyTrigger(KeyInput.KEY_SPACE));
-		inputManager.addListener(flyCam, new String[] { "FLYCAM_Forward", "FLYCAM_Lower", "FLYCAM_StrafeLeft", "FLYCAM_StrafeRight", "Jump" });
-
+		inputManager.addMapping("Shoot", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
+		inputManager.addListener(flyCam, new String[] { "Forward", "Backward", "Left", "Right", "Jump" });
+		
 		// Speed up the cam a bit
 		flyCam.setMoveSpeed(50);
 
 		/** Set up Physics */
 		bulletAppState = new BulletAppState();
+		bulletAppState.setThreadingType(ThreadingType.PARALLEL);
 		stateManager.attach(bulletAppState);
 		//bulletAppState.getPhysicsSpace().enableDebug(assetManager);
 
 		// Instanciate the chossen terrain
 		world = new HelloWorld();
 		world.init(assetManager, cam, rootNode, bulletAppState);
+		
+		mobilesNode = new Node("mobilesNode");
+		rootNode.attachChild(mobilesNode);
 
 		// Local player
 		localPlayer = new LocalPlayer();
-		localPlayer.init(assetManager, cam, rootNode, bulletAppState);
-		inputManager.addListener(localPlayer, "FLYCAM_Forward", "FLYCAM_Lower", "FLYCAM_StrafeLeft", "FLYCAM_StrafeRight", "Jump");
+		localPlayer.init(assetManager, cam, mobilesNode, bulletAppState);
+		inputManager.addListener(localPlayer, "Forward", "Backward", "Left", "Right", "Jump", "Shoot");
 
 		// Crates
-		for (int i = 0; i < 0; i++) {
+		for (int i = 0; i < 30; i++) {
 			Crate crate = new Crate();
-			crate.init(assetManager, cam, rootNode, bulletAppState);
+			crate.init(assetManager, cam, mobilesNode, bulletAppState);
 		}
 		
 		// Trees
-		for (int i = 0; i < 2; i++) {
+		for (int i = 0; i < 30; i++) {
 			BlenderTree tree = new BlenderTree();
-			tree.init(assetManager, cam, rootNode, bulletAppState);
+			tree.init(assetManager, cam, mobilesNode, bulletAppState);
 		}
 		
 		// Light
@@ -96,7 +106,6 @@ public class Application extends SimpleApplication {
 		pssmRenderer.setShadowIntensity(0.5f);
 		//pssmRenderer.setShadowZExtend(100.0f);
 		viewPort.addProcessor(pssmRenderer);
-		
 	}
 
 	@Override
