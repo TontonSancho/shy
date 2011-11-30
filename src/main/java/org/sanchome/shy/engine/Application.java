@@ -17,6 +17,7 @@ import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
+import com.jme3.renderer.Caps;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
@@ -33,7 +34,7 @@ public class Application extends SimpleApplication {
 	static public IWorld getCurrentWorld() {
 		return world;
 	}
-	
+
 	@Override
 	public void simpleInitApp() {
 
@@ -50,7 +51,7 @@ public class Application extends SimpleApplication {
 		inputManager.addMapping("Jump", new KeyTrigger(KeyInput.KEY_SPACE));
 		inputManager.addMapping("Shoot", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
 		inputManager.addListener(flyCam, new String[] { "Forward", "Backward", "Left", "Right", "Jump" });
-		
+
 		// Speed up the cam a bit
 		flyCam.setMoveSpeed(50);
 
@@ -63,7 +64,7 @@ public class Application extends SimpleApplication {
 		// Instanciate the chossen terrain
 		world = new HelloWorld();
 		world.init(assetManager, cam, rootNode, bulletAppState);
-		
+
 		mobilesNode = new Node("mobilesNode");
 		rootNode.attachChild(mobilesNode);
 
@@ -77,29 +78,35 @@ public class Application extends SimpleApplication {
 			Crate crate = new Crate();
 			crate.init(assetManager, cam, mobilesNode, bulletAppState);
 		}
-		
+
 		// Trees
 		for (int i = 0; i < 30; i++) {
 			BlenderTree tree = new BlenderTree();
 			tree.init(assetManager, cam, mobilesNode, bulletAppState);
 		}
-		
+
 		// Light
 		AmbientLight al = new AmbientLight();
 		al.setColor(ColorRGBA.White.mult(0.5f));
 		rootNode.addLight(al);
-		
+
 		DirectionalLight sun = new DirectionalLight();
 		sun.setColor(ColorRGBA.White);
 		sun.setDirection(new Vector3f(-0.7f, -1.0f, -1.0f).normalizeLocal());
 		rootNode.addLight(sun);
-		
-		// Sky
-		Spatial sky = SkyFactory.createSky(assetManager, "Textures/Sky/Bright/BrightSky.dds", false);
+
+		// Sky, some graphic cards cannot run float textures
+		Spatial sky;
+		if (renderer.getCaps().contains(Caps.FloatTexture)) {
+			sky = SkyFactory.createSky(assetManager, "Textures/Sky/Bright/BrightSky.dds", false);
+		} else {
+			// TODO : find a better sky..
+			sky = SkyFactory.createSky(assetManager, "textures/alternateSky.jpg", true);
+		}
 		rootNode.attachChild(sky);
-		
+
 		// Shadow
-		
+
 		rootNode.setShadowMode(ShadowMode.Off);
 		PssmShadowRenderer pssmRenderer = new PssmShadowRenderer(assetManager, 1024, 4);
 		pssmRenderer.setDirection(sun.getDirection());
