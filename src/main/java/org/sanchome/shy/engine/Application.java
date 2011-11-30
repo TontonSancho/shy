@@ -1,7 +1,13 @@
 package org.sanchome.shy.engine;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Logger;
+
 import org.sanchome.shy.engine.entity.BlenderTree;
 import org.sanchome.shy.engine.entity.Crate;
+import org.sanchome.shy.engine.entity.IEntity;
 import org.sanchome.shy.engine.player.LocalPlayer;
 import org.sanchome.shy.engine.world.HelloWorld;
 import org.sanchome.shy.engine.world.IWorld;
@@ -25,10 +31,14 @@ import com.jme3.util.SkyFactory;
 
 public class Application extends SimpleApplication {
 
+	private static final Logger logger = Logger.getLogger(Application.class.getName());
+
+
 	private BulletAppState bulletAppState;
 	private static IWorld world;
 	private Node mobilesNode;
 	LocalPlayer localPlayer;
+	Map<IEntity, Integer> entitiesToStabilizePhysicaly = new HashMap<IEntity, Integer>();
 
 	static public IWorld getCurrentWorld() {
 		return world;
@@ -58,7 +68,7 @@ public class Application extends SimpleApplication {
 		bulletAppState = new BulletAppState();
 		bulletAppState.setThreadingType(ThreadingType.PARALLEL);
 		stateManager.attach(bulletAppState);
-		//bulletAppState.getPhysicsSpace().enableDebug(assetManager);
+		bulletAppState.getPhysicsSpace().enableDebug(assetManager);
 
 		// Instanciate the chossen terrain
 		world = new HelloWorld();
@@ -73,15 +83,17 @@ public class Application extends SimpleApplication {
 		inputManager.addListener(localPlayer, "Forward", "Backward", "Left", "Right", "Jump", "Shoot");
 
 		// Crates
-		for (int i = 0; i < 30; i++) {
+		for (int i = 0; i < 1; i++) {
 			Crate crate = new Crate();
 			crate.init(assetManager, cam, mobilesNode, bulletAppState);
+			entitiesToStabilizePhysicaly.put(crate, 0);
 		}
 		
 		// Trees
-		for (int i = 0; i < 30; i++) {
+		for (int i = 0; i < 20; i++) {
 			BlenderTree tree = new BlenderTree();
 			tree.init(assetManager, cam, mobilesNode, bulletAppState);
+			entitiesToStabilizePhysicaly.put(tree, 0);
 		}
 		
 		// Light
@@ -99,7 +111,6 @@ public class Application extends SimpleApplication {
 		rootNode.attachChild(sky);
 		
 		// Shadow
-		
 		rootNode.setShadowMode(ShadowMode.Off);
 		PssmShadowRenderer pssmRenderer = new PssmShadowRenderer(assetManager, 1024, 4);
 		pssmRenderer.setDirection(sun.getDirection());
@@ -110,6 +121,44 @@ public class Application extends SimpleApplication {
 
 	@Override
 	public void simpleUpdate(float tpf) {
+		// Physic/Dynamic stabilization
+		// trick to load large amount of physic objects
+		if (!entitiesToStabilizePhysicaly.isEmpty()) {
+			//IEntity entityToStabilize = null;
+			
+			boolean atLeastOneStabilization = false;
+			int i=0;
+			for(IEntity entityToStabilize : entitiesToStabilizePhysicaly.keySet()) {
+				if (entitiesToStabilizePhysicaly.get(entityToStabilize) > 100) {
+					// Pop it
+					entitiesToStabilizePhysicaly.remove(entityToStabilize);
+					entityToStabilize.detach();
+					atLeastOneStabilization = true;
+					System.out.println("------ Your are too long to stabilize:"+i);
+					break;
+				}
+					
+				if (!entityToStabilize.isStabilized()) {
+					System.out.println("Stabilization i:"+i+" on:"+entitiesToStabilizePhysicaly.size());
+					entityToStabilize.enableStabilization();
+					entitiesToStabilizePhysicaly.put(entityToStabilize, entitiesToStabilizePhysicaly.get(entityToStabilize)+1);
+					atLeastOneStabilization=true;
+					break;
+				}
+				else {
+					entitiesToStabilizePhysicaly.put(entityToStabilize, 0);
+					System.out.println("Stabilized i:"+i+" on:"+entitiesToStabilizePhysicaly.size());
+				}
+				i++;
+			}
+			if(!atLeastOneStabilization) {
+				for(IEntity entityToStabilize : entitiesToStabilizePhysicaly.keySet())
+					entityToStabilize.restoreNormalPhysics();
+				entitiesToStabilizePhysicaly.clear();
+				logger.info("Stabilization done.");
+			}
+		}
+		
 		localPlayer.simpleUpdate(tpf);
 	}
 }

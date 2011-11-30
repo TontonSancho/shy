@@ -103,13 +103,12 @@ public class LocalPlayer implements IPlayer {
 				rootNode.collideWith(ray, results);
 				if (results.size() > 0) {
 					CollisionResult closest = results.getClosestCollision();
-					Geometry geometry = closest.getGeometry();
-
 					RigidBodyControl rbc = closest.getGeometry().getParent().getUserData("RigidBodyControl");
 					if (rbc==null)
 						rbc = closest.getGeometry().getUserData("RigidBodyControl");
 					if(rbc!=null) {
 						System.out.println("rbc       :"+rbc);
+						if(!rbc.isEnabled()) rbc.setEnabled(true);
 						rbc.activate();
 						rbc.applyImpulse(camera.getDirection().mult(1000.0f), camera.getLocation().subtract(rbc.getPhysicsLocation()));
 					}
