@@ -1,13 +1,16 @@
 package org.sanchome.shy.engine;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Logger;
 
 import org.sanchome.shy.engine.entity.BlenderTree;
 import org.sanchome.shy.engine.entity.Crate;
 import org.sanchome.shy.engine.entity.IEntity;
+import org.sanchome.shy.engine.entity.IUpdatable;
+import org.sanchome.shy.engine.entity.Sheep;
 import org.sanchome.shy.engine.player.LocalPlayer;
 import org.sanchome.shy.engine.world.HelloWorld;
 import org.sanchome.shy.engine.world.IWorld;
@@ -39,6 +42,7 @@ public class Application extends SimpleApplication {
 	private Node mobilesNode;
 	LocalPlayer localPlayer;
 	Map<IEntity, Integer> entitiesToStabilizePhysicaly = new HashMap<IEntity, Integer>();
+	List<IUpdatable> uptatableEntities = new ArrayList<IUpdatable>();
 
 	static public IWorld getCurrentWorld() {
 		return world;
@@ -94,6 +98,15 @@ public class Application extends SimpleApplication {
 			BlenderTree tree = new BlenderTree();
 			tree.init(assetManager, cam, mobilesNode, bulletAppState);
 			entitiesToStabilizePhysicaly.put(tree, 0);
+		}
+		
+		
+		// Trees
+		for (int i = 0; i < 1; i++) {
+			Sheep sheep = new Sheep();
+			sheep.init(assetManager, cam, mobilesNode, bulletAppState);
+			//entitiesToStabilizePhysicaly.put(sheep, 0);
+			uptatableEntities.add(sheep);
 		}
 		
 		// Light
@@ -158,6 +171,9 @@ public class Application extends SimpleApplication {
 				logger.info("Stabilization done.");
 			}
 		}
+		
+		for(IUpdatable updatable : uptatableEntities)
+			updatable.update(tpf);
 		
 		localPlayer.simpleUpdate(tpf);
 	}
