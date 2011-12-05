@@ -103,12 +103,11 @@ public class Sheep implements IEntity, IUpdatable {
 		frontWheelNode.addControl(model_phy_frontWheel);
 		rootNode.attachChild(frontWheelNode);
 		bulletAppState.getPhysicsSpace().add(model_phy_frontWheel);
-		model_phy_frontWheel.setFriction(50.0f);
+		model_phy_frontWheel.setFriction(0.5f/*50.0f*/);
 		
 		model_phy_frontWheel.setPhysicsLocation(
 			model_phy.getPhysicsLocation().add(FRONT_WHEEL_OFFSET)
 		);
-		
 		
 		Node rearWheelNode = new Node("rearWheelNode");
 		CylinderCollisionShape rearWheel  = new CylinderCollisionShape(WHEEL_SIZE, 2);
@@ -116,7 +115,7 @@ public class Sheep implements IEntity, IUpdatable {
 		rearWheelNode.addControl(model_phy_rearWheel);
 		rootNode.attachChild(rearWheelNode);
 		bulletAppState.getPhysicsSpace().add(model_phy_rearWheel);
-		model_phy_rearWheel.setFriction(50.0f);
+		model_phy_rearWheel.setFriction(0.5f/*50.0f*/);
 		
 		model_phy_rearWheel.setPhysicsLocation(
 			model_phy.getPhysicsLocation().add(REAR_WHEEL_OFFSET)
@@ -125,7 +124,6 @@ public class Sheep implements IEntity, IUpdatable {
 		frontJoint = new HingeJoint(model_phy, model_phy_frontWheel, FRONT_WHEEL_OFFSET, Vector3f.ZERO, Vector3f.UNIT_Z, Vector3f.UNIT_Z);
 		frontJoint.setCollisionBetweenLinkedBodys(false);
 		bulletAppState.getPhysicsSpace().add(frontJoint);
-		
 		
 		rearJoint =  new HingeJoint(model_phy, model_phy_rearWheel, REAR_WHEEL_OFFSET, Vector3f.ZERO, Vector3f.UNIT_Z, Vector3f.UNIT_Z);
 		rearJoint.setCollisionBetweenLinkedBodys(false);
@@ -140,12 +138,12 @@ public class Sheep implements IEntity, IUpdatable {
 	public void update(float tpf) {
 		//model_phy_frontWheel.setAngularVelocity(Vector3f.ZERO);
 		//model_phy_rearWheel.setAngularVelocity(Vector3f.ZERO);
-		if (Math.random()>0.98) {
+		if (Math.random()>0.99) {
 			motorEnabled = !motorEnabled;
 		}
 		if (motorEnabled) {
-			frontJoint.enableMotor(true, 10.0f, 1.0f);
-			rearJoint.enableMotor(true, 10.0f, 1.0f);
+			frontJoint.enableMotor(true, 80.0f, 1.0f);
+			rearJoint.enableMotor(true, 80.0f, 1.0f);
 		} else {
 			frontJoint.enableMotor(false, 10.0f, 1.0f);
 			rearJoint.enableMotor(false, 10.0f, 1.0f);
