@@ -1,6 +1,6 @@
 package org.sanchome.shy.engine.entity;
 
-import org.sanchome.shy.engine.Application;
+import org.sanchome.shy.engine.ApplicationClient;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.bullet.BulletAppState;
@@ -8,6 +8,8 @@ import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.collision.shapes.CompoundCollisionShape;
 import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Matrix3f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
@@ -27,7 +29,7 @@ public class BlenderTree implements IEntity {
 		this.rootNode = rootNode;
 		this.bulletAppState = bulletAppState;
 		
-		
+		// Geom part
 		float massOffset = 2.0f;
 		
 		model = assetManager.loadModel("models/blender/Tree.mesh.xml" );
@@ -42,19 +44,21 @@ public class BlenderTree implements IEntity {
 		float initialScale     = (float)(8.0f*Math.random())+4.0f;
 		
 		geom.setLocalTranslation(0.0f, massOffset, 0.0f);
-
-
+		
+		model.setLocalScale(initialScale);
+		
+		model.setShadowMode(ShadowMode.Cast);
+		
+		
 		model.setLocalTranslation(
 	    		new Vector3f(
 	    				initialPositionX,
-	    				Application.getCurrentWorld().getHeightAt(initialPositionX, initialPositionZ, 1.0f) - massOffset*initialScale,
+	    				ApplicationClient.getCurrentWorld().getHeightAt(initialPositionX, initialPositionZ, 1.0f) - massOffset*initialScale,
 	    				initialPositionZ
 	    		)
 	    );
-		model.setLocalScale(initialScale);
 		
-		
-		
+		// Physic part
 		BoxCollisionShape bcs = new BoxCollisionShape(new Vector3f(0.2f*initialScale, 1.0f*initialScale, 0.2f*initialScale));
 		SphereCollisionShape scs = new SphereCollisionShape(1.625f*initialScale);
 		CompoundCollisionShape ccs = new CompoundCollisionShape();
@@ -62,19 +66,26 @@ public class BlenderTree implements IEntity {
 		ccs.addChildShape(scs, new Vector3f(0.0f*initialScale, (massOffset + 3.75f)*initialScale, 0.0f*initialScale));
 		
 		model_phy = new RigidBodyControl(ccs, 100.0f*initialScale);
-		model.addControl(model_phy);
 		model.setUserData("RigidBodyControl", model_phy);
-
-		model_phy.setAngularSleepingThreshold(10000.0f);
-		model_phy.setLinearSleepingThreshold(10000.0f);
-		model_phy.setCcdMotionThreshold(10000.0f);
+		model.addControl(model_phy);
 		
 		bulletAppState.getPhysicsSpace().add(model_phy);
-		//model_phy.setFriction(50.0f);
+		
+		
+		model_phy.setFriction(100.0f);
+		
 		model_phy.setEnabled(false);
 		
-		model.setShadowMode(ShadowMode.Cast);
 		
+		
+	    /*
+		Vector3f terrainNormal = ApplicationClient.getCurrentWorld().getNormalAt(initialPositionX, initialPositionZ);
+		Matrix3f rotationMatrix = new Matrix3f();
+		rotationMatrix.fromStartEndVectors(Vector3f.UNIT_Y, terrainNormal);
+		Quaternion treeOrientation = Quaternion.IDENTITY;
+		treeOrientation.fromRotationMatrix(rotationMatrix);
+		model_phy.setPhysicsRotation(treeOrientation);
+		*/
 	}
 	
 	public boolean isStabilized() {

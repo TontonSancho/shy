@@ -32,9 +32,9 @@ import com.jme3.scene.Spatial;
 import com.jme3.shadow.PssmShadowRenderer;
 import com.jme3.util.SkyFactory;
 
-public class Application extends SimpleApplication {
+public class ApplicationClient extends SimpleApplication {
 
-	private static final Logger logger = Logger.getLogger(Application.class.getName());
+	private static final Logger logger = Logger.getLogger(ApplicationClient.class.getName());
 
 
 	private BulletAppState bulletAppState;
@@ -50,13 +50,23 @@ public class Application extends SimpleApplication {
 	
 	@Override
 	public void simpleInitApp() {
+		logger.info("Starting shy client ...");
 
 		// Set azerty keyboard
-		inputManager.deleteMapping("FLYCAM_Forward");
-		inputManager.deleteMapping("FLYCAM_Lower");
-		inputManager.deleteMapping("FLYCAM_StrafeLeft");
-		inputManager.deleteMapping("FLYCAM_Rise");
-		inputManager.deleteMapping("FLYCAM_StrafeRight");
+		for(String builtinMapping :
+			new String[]{
+				"FLYCAM_RotateDrag",
+				"FLYCAM_Forward",
+				"FLYCAM_Backward",
+				"FLYCAM_Rise",
+				"FLYCAM_Lower",
+				"FLYCAM_StrafeLeft",
+				"FLYCAM_StrafeRight"
+			}) {
+			inputManager.deleteMapping(builtinMapping);
+									
+		}
+		
 		inputManager.addMapping("Forward", new KeyTrigger(KeyInput.KEY_Z));
 		inputManager.addMapping("Backward", new KeyTrigger(KeyInput.KEY_S));
 		inputManager.addMapping("Left", new KeyTrigger(KeyInput.KEY_Q));
@@ -90,18 +100,18 @@ public class Application extends SimpleApplication {
 		for (int i = 0; i < 1; i++) {
 			Crate crate = new Crate();
 			crate.init(assetManager, cam, mobilesNode, bulletAppState);
-			entitiesToStabilizePhysicaly.put(crate, 0);
+			//entitiesToStabilizePhysicaly.put(crate, 0);
 		}
 		
 		// Trees
-		for (int i = 0; i < 20; i++) {
+		for (int i = 0; i < 1; i++) {
 			BlenderTree tree = new BlenderTree();
 			tree.init(assetManager, cam, mobilesNode, bulletAppState);
-			entitiesToStabilizePhysicaly.put(tree, 0);
+			//entitiesToStabilizePhysicaly.put(tree, 0);
 		}
 		
 		
-		// Trees
+		// Sheeps
 		for (int i = 0; i < 1; i++) {
 			Sheep sheep = new Sheep();
 			sheep.init(assetManager, cam, mobilesNode, bulletAppState);

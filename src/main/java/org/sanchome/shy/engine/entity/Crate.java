@@ -1,8 +1,7 @@
 package org.sanchome.shy.engine.entity;
 
-import org.sanchome.shy.engine.Application;
+import org.sanchome.shy.engine.ApplicationClient;
 
-import com.bulletphysics.collision.shapes.BoxShape;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.TextureKey;
 import com.jme3.bullet.BulletAppState;
@@ -59,7 +58,7 @@ public class Crate implements IEntity {
 	    model_geo.setLocalTranslation(
 	    		new Vector3f(
 	    				initialPositionX,
-	    				Application.getCurrentWorld().getHeightAt(initialPositionX, initialPositionZ, 1.1f*initialScale),
+	    				ApplicationClient.getCurrentWorld().getHeightAt(initialPositionX, initialPositionZ, 1.1f*initialScale),
 	    				initialPositionZ
 	    		)
 	    );

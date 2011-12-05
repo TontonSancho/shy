@@ -1,12 +1,13 @@
 package org.sanchome.shy.engine.entity;
 
-import org.sanchome.shy.engine.Application;
+import org.sanchome.shy.engine.ApplicationClient;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.TextureKey;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
+import com.jme3.bullet.collision.shapes.CylinderCollisionShape;
 import com.jme3.bullet.collision.shapes.CompoundCollisionShape;
 import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
@@ -22,14 +23,18 @@ import com.jme3.scene.shape.Box;
 import com.jme3.texture.Texture;
 
 public class Sheep implements IEntity, IUpdatable {
-
+	
+	private static final Box BOX;
+	private static Material wall_mat;
+	
+	private static final Vector3f WHEEL_SIZE;
+	private static final Vector3f FRONT_WHEEL_OFFSET;
+	private static final Vector3f REAR_WHEEL_OFFSET;
+	
 	private Node rootNode;
 	private BulletAppState bulletAppState;
 	
 	private Geometry model_geo;
-	
-	private static final Box BOX;
-	private static Material wall_mat;
 	
 	private RigidBodyControl model_phy;
 	private RigidBodyControl model_phy_frontWheel;
@@ -40,6 +45,10 @@ public class Sheep implements IEntity, IUpdatable {
 	static {
 		BOX = new Box(Vector3f.ZERO, 1.0f, 1.0f, 1.0f);
 		BOX.scaleTextureCoordinates(new Vector2f(1.0f, 1.0f));
+		
+		WHEEL_SIZE = new Vector3f(0.3f, 2.8f, 1.4f);
+		FRONT_WHEEL_OFFSET = new Vector3f(1.1f, -1.1f, 0.0f);
+		REAR_WHEEL_OFFSET  = new Vector3f(-1.7f, -1.1f, 0.0f);
 	}
 	
 	public void init(AssetManager assetManager, Camera camera, Node rootNode, BulletAppState bulletAppState) {
@@ -59,55 +68,90 @@ public class Sheep implements IEntity, IUpdatable {
 		model_geo.setMaterial(wall_mat);
 		rootNode.attachChild(model_geo);
 		
-		float initialPositionX = -20.0f;//(float)(500.0*Math.random())-250.0f;
-		float initialPositionZ = -5.0f;//(float)(500.0*Math.random())-250.0f;
+		float initialPositionX = 1.0f;//(float)(500.0*Math.random())-250.0f;
+		float initialPositionZ = -30.0f;//(float)(500.0*Math.random())-250.0f;
 		
+		/*
 		model_geo.setLocalTranslation(
 				new Vector3f(
 						initialPositionX,
-						Application.getCurrentWorld().getHeightAt(initialPositionX, initialPositionZ, 1.0f),
+						ApplicationClient.getCurrentWorld().getHeightAt(initialPositionX, initialPositionZ, 1.0f),
 						initialPositionZ
 				)
 		);
+		*/
 		
 		
 		BoxCollisionShape bcs = new BoxCollisionShape(new Vector3f(2.0f, 1.0f, 1.4f));
-		model_phy = new RigidBodyControl(bcs, 10.0f);
+		model_phy = new RigidBodyControl(bcs, 30.0f);
 		model_geo.addControl(model_phy);
 		model_geo.setUserData("RigidBodyControl", model_phy);
 		bulletAppState.getPhysicsSpace().add(model_phy);
-		model_phy.setFriction(50.0f);
+		model_phy.setFriction(5.0f);
+		
+		model_phy.setPhysicsLocation(
+			new Vector3f(
+					initialPositionX,
+					ApplicationClient.getCurrentWorld().getHeightAt(initialPositionX, initialPositionZ, 1.6f),
+					initialPositionZ
+			)
+		);
 		
 		Node frontWheelNode = new Node("frontWheelNode");
-		CapsuleCollisionShape frontWheel = new CapsuleCollisionShape(0.3f, 2.8f, 2);
-		model_phy_frontWheel = new RigidBodyControl(frontWheel, .1f);
+		CylinderCollisionShape frontWheel = new CylinderCollisionShape(WHEEL_SIZE, 2);
+		model_phy_frontWheel = new RigidBodyControl(frontWheel, .50f);
 		frontWheelNode.addControl(model_phy_frontWheel);
 		rootNode.attachChild(frontWheelNode);
 		bulletAppState.getPhysicsSpace().add(model_phy_frontWheel);
 		model_phy_frontWheel.setFriction(50.0f);
 		
+		model_phy_frontWheel.setPhysicsLocation(
+			model_phy.getPhysicsLocation().add(FRONT_WHEEL_OFFSET)
+		);
+		
+		
 		Node rearWheelNode = new Node("rearWheelNode");
-		CapsuleCollisionShape rearWheel  = new CapsuleCollisionShape(0.3f, 2.8f, 2);
-		model_phy_rearWheel = new RigidBodyControl(rearWheel, .1f);
+		CylinderCollisionShape rearWheel  = new CylinderCollisionShape(WHEEL_SIZE, 2);
+		model_phy_rearWheel = new RigidBodyControl(rearWheel, .50f);
 		rearWheelNode.addControl(model_phy_rearWheel);
 		rootNode.attachChild(rearWheelNode);
 		bulletAppState.getPhysicsSpace().add(model_phy_rearWheel);
 		model_phy_rearWheel.setFriction(50.0f);
 		
-		frontJoint = new HingeJoint(model_phy, model_phy_frontWheel, new Vector3f(1.1f, -1.4f, 0.0f), Vector3f.ZERO, Vector3f.UNIT_Z, Vector3f.UNIT_Z);
+		model_phy_rearWheel.setPhysicsLocation(
+			model_phy.getPhysicsLocation().add(REAR_WHEEL_OFFSET)
+		);
+		
+		frontJoint = new HingeJoint(model_phy, model_phy_frontWheel, FRONT_WHEEL_OFFSET, Vector3f.ZERO, Vector3f.UNIT_Z, Vector3f.UNIT_Z);
 		frontJoint.setCollisionBetweenLinkedBodys(false);
 		bulletAppState.getPhysicsSpace().add(frontJoint);
-		rearJoint =  new HingeJoint(model_phy, model_phy_rearWheel, new Vector3f(-1.7f, -1.4f, 0.0f), Vector3f.ZERO, Vector3f.UNIT_Z, Vector3f.UNIT_Z);
-		bulletAppState.getPhysicsSpace().add(rearJoint);
+		
+		
+		rearJoint =  new HingeJoint(model_phy, model_phy_rearWheel, REAR_WHEEL_OFFSET, Vector3f.ZERO, Vector3f.UNIT_Z, Vector3f.UNIT_Z);
 		rearJoint.setCollisionBetweenLinkedBodys(false);
+		bulletAppState.getPhysicsSpace().add(rearJoint);
+		
 		
 		model_geo.setShadowMode(ShadowMode.Cast);
 	}
 	
+	private boolean motorEnabled = false;
+	
 	public void update(float tpf) {
 		//model_phy_frontWheel.setAngularVelocity(Vector3f.ZERO);
 		//model_phy_rearWheel.setAngularVelocity(Vector3f.ZERO);
-		//rearJoint.
+		if (Math.random()>0.98) {
+			motorEnabled = !motorEnabled;
+		}
+		if (motorEnabled) {
+			frontJoint.enableMotor(true, 10.0f, 1.0f);
+			rearJoint.enableMotor(true, 10.0f, 1.0f);
+		} else {
+			frontJoint.enableMotor(false, 10.0f, 1.0f);
+			rearJoint.enableMotor(false, 10.0f, 1.0f);
+			model_phy_frontWheel.setAngularVelocity(Vector3f.ZERO);
+			model_phy_rearWheel.setAngularVelocity(Vector3f.ZERO);
+		}
 		
 	}
 	

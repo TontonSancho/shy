@@ -1,19 +1,231 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	
 	<modelVersion>4.0.0</modelVersion>
+	
 	<groupId>org.sanchome</groupId>
 	<artifactId>shy</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>SHY - Sheep Hate You</name>
 	<description>Sheep Hate You aims to be a simple and fun 3D FPS Game with sheep, you, and your right shoe.</description>
 
+
+	<!-- jMonkeyEngine3.jar/META-INF/MANIFEST Classpath:	
+		lib/j-ogg-oggd.jar
+		lib/j-ogg-vorbisd.jar
+		lib/jbullet.jar
+		lib/stack-alloc.jar
+		lib/vecmath.jar
+		lib/jME3-bullet-natives.jar
+		lib/lwjgl.jar
+		lib/jME3-lwjgl-natives.jar
+		lib/jinput.jar
+		lib/jheora-jst-debug-0.6.0.jar
+		lib/eventbus.jar
+		lib/nifty-default-controls.jar
+		lib/nifty-examples.jar
+		lib/nifty-style-black.jar
+		lib/nifty.jar
+		lib/xmlpull-xpp3.jar
+		lib/jME3-testdata.jar
+		lib/noise-0.0.1-SNAPSHOT.jar
+		lib/jME3-jbullet.jar
+		lib/jME3-bullet.jar
+		lib/jME3-test.jar
+	-->
+	<profiles>
+		<profile>
+			<id>base</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+		</profile>
+		<profile>
+			<id>release</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>de.jarnbjo</groupId>
+					<artifactId>j-ogg-oggd</artifactId>
+					<version>1.0</version>
+					<scope>system</scope>
+					<systemPath>${basedir}/src/main/lib/lib/j-ogg-oggd.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>de.jarnbjo</groupId>
+					<artifactId>j-ogg-vorbisd</artifactId>
+					<version>1.0</version>
+					<scope>system</scope>
+					<systemPath>${basedir}/src/main/lib/lib/j-ogg-vorbisd.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>com.bulletphysics</groupId>
+					<artifactId>jbullet</artifactId>
+					<version>1.0</version>
+					<scope>system</scope>
+					<systemPath>${basedir}/src/main/lib/lib/jbullet.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>cz.advel</groupId>
+					<artifactId>stack-alloc</artifactId>
+					<version>1.0</version>
+					<scope>system</scope>
+					<systemPath>${basedir}/src/main/lib/lib/stack-alloc.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>javax.vecmath</groupId>
+					<artifactId>vecmath</artifactId>
+					<version>1.4.0</version>
+					<scope>system</scope>
+					<systemPath>${basedir}/src/main/lib/lib/vecmath.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>org.lwjgl</groupId>
+					<artifactId>lwjgl</artifactId>
+					<version>1.0</version>
+					<scope>system</scope>
+					<systemPath>${basedir}/src/main/lib/lib/lwjgl.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>com.jme3</groupId>
+					<artifactId>jME3-lwjgl-natives</artifactId>
+					<version>3.0</version>
+					<scope>system</scope>
+					<systemPath>${basedir}/src/main/lib/lib/jME3-lwjgl-natives.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>net.java.games</groupId>
+					<artifactId>jinput</artifactId>
+					<version>1.0</version>
+					<scope>system</scope>
+					<systemPath>${basedir}/src/main/lib/lib/jinput.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>com.jheora</groupId>
+					<artifactId>jheora-jst-debug-0.6.0</artifactId>
+					<version>0.6.0</version>
+					<scope>system</scope>
+					<systemPath>${basedir}/src/main/lib/lib/jheora-jst-debug-0.6.0.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>org.bushe</groupId>
+					<artifactId>eventbus</artifactId>
+					<version>1.4</version>
+					<scope>system</scope>
+					<systemPath>${basedir}/src/main/lib/lib/eventbus.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>lessvoid</groupId>
+					<artifactId>nifty-default-controls</artifactId>
+					<version>1.3.1-SNAPSHOT</version>
+					<scope>system</scope>
+					<systemPath>${basedir}/src/main/lib/lib/nifty-default-controls.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>lessvoid</groupId>
+					<artifactId>nifty-examples</artifactId>
+					<version>1.3.1-SNAPSHOT</version>
+					<scope>system</scope>
+					<systemPath>${basedir}/src/main/lib/lib/nifty-examples.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>lessvoid</groupId>
+					<artifactId>nifty-style-black</artifactId>
+					<version>1.3.1-SNAPSHOT</version>
+					<scope>system</scope>
+					<systemPath>${basedir}/src/main/lib/lib/nifty-style-black.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>lessvoid</groupId>
+					<artifactId>nifty</artifactId>
+					<version>1.3.1-SNAPSHOT</version>
+					<scope>system</scope>
+					<systemPath>${basedir}/src/main/lib/lib/nifty.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>org.xmlpull</groupId>
+					<artifactId>xmlpull-xpp3</artifactId>
+					<version>1.1.4c</version>
+					<scope>system</scope>
+					<systemPath>${basedir}/src/main/lib/lib/xmlpull-xpp3.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>org.novyon</groupId>
+					<artifactId>noise</artifactId>
+					<version>0.0.1-SNAPSHOT</version>
+					<scope>system</scope>
+					<systemPath>${basedir}/src/main/lib/lib/noise-0.0.1-SNAPSHOT.jar</systemPath>
+				</dependency>
+			</dependencies>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-dependency-plugin</artifactId>
+						<version>2.3</version>
+						<executions>
+							<execution>
+								<id>unpack-dependencies</id>
+								<phase>package</phase>
+								<goals>
+									<goal>unpack-dependencies</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${project.build.directory}/unpacked-dependencies</outputDirectory>
+									<overWriteReleases>false</overWriteReleases>
+									<overWriteSnapshots>true</overWriteSnapshots>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>native-bullet</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>com.jme3</groupId>
+					<artifactId>native-jME3-bullet-natives</artifactId>
+					<version>3.0</version>
+					<scope>system</scope>
+					<systemPath>${basedir}/src/main/lib/opt/native-bullet/lib/jME3-bullet-natives.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>com.jme3</groupId>
+					<artifactId>native-jME3-bullet</artifactId>
+					<version>3.0</version>
+					<scope>system</scope>
+					<systemPath>${basedir}/src/main/lib/opt/native-bullet/lib/jME3-bullet.jar</systemPath>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
+			<id>android</id>
+			<dependencies>
+				<dependency>
+					<groupId>com.jme3</groupId>
+					<artifactId>android-jMonkeyEngine3</artifactId>
+					<version>3.0</version>
+					<scope>system</scope>
+					<systemPath>${basedir}/src/main/lib/opt/android/jMonkeyEngine3.jar</systemPath>
+				</dependency>
+			</dependencies>
+		</profile>
+	</profiles>
+	
 	<build>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>1.5</source>
-					<target>1.5</target>
+					<source>1.6</source>
+					<target>1.6</target>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -36,35 +248,37 @@
 			</plugin>
 		</plugins>
 	</build>
-
+	
 	<dependencies>
 		<dependency>
 			<groupId>com.jme3</groupId>
-			<artifactId>core</artifactId>
+			<artifactId>jME3-testdata</artifactId>
 			<version>3.0</version>
 			<scope>system</scope>
-			<systemPath>${basedir}/src/main/lib/jMonkeyEngine3.jar</systemPath>
+			<systemPath>${basedir}/src/main/lib/lib/jME3-testdata.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>com.jme3</groupId>
-			<artifactId>jbullet</artifactId>
+			<artifactId>jME3-jbullet</artifactId>
 			<version>3.0</version>
 			<scope>system</scope>
 			<systemPath>${basedir}/src/main/lib/lib/jME3-jbullet.jar</systemPath>
 		</dependency>
+		<!--
 		<dependency>
-			<groupId>com.bulletphysics</groupId>
-			<artifactId>jbullet</artifactId>
-			<version>1.0</version>
+			<groupId>com.jme3</groupId>
+			<artifactId>jME3-test</artifactId>
+			<version>3.0</version>
 			<scope>system</scope>
-			<systemPath>${basedir}/src/main/lib/lib/jbullet.jar</systemPath>
+			<systemPath>${basedir}/src/main/lib/lib/jME3-test.jar</systemPath>
 		</dependency>
+		-->
 		<dependency>
-			<groupId>javax.vecmath</groupId>
-			<artifactId>vecmath</artifactId>
-			<version>1.4.0</version>
+			<groupId>com.jme3</groupId>
+			<artifactId>jMonkeyEngine3</artifactId>
+			<version>3.0</version>
 			<scope>system</scope>
-			<systemPath>${basedir}/src/main/lib/lib/vecmath.jar</systemPath>
+			<systemPath>${basedir}/src/main/lib/jMonkeyEngine3.jar</systemPath>
 		</dependency>
 	</dependencies>
 

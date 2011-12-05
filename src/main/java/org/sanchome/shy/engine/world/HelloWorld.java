@@ -10,6 +10,7 @@ import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.bullet.util.CollisionShapeFactory;
 import com.jme3.material.Material;
 import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Node;
@@ -114,6 +115,14 @@ public class HelloWorld implements IWorld {
 	
 	public float getHeightAt(float queryX, float queryZ, float yOffset) {
 		return getHeightAt(new Vector2f(queryX, queryZ), yOffset);
+	}
+	
+	public Vector3f getNormalAt(Vector2f queryXZ) {
+		return terrain.getNormal(queryXZ);
+	}
+	
+	public Vector3f getNormalAt(float queryX, float queryZ) {
+		return getNormalAt(new Vector2f(queryX, queryZ));
 	}
 
 }

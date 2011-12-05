@@ -3,6 +3,7 @@ package org.sanchome.shy.engine.world;
 import org.sanchome.shy.engine.IInitable;
 
 import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
 
 public interface IWorld extends IInitable {
 	
@@ -11,4 +12,6 @@ public interface IWorld extends IInitable {
 	float getHeightAt(float queryX, float queryZ);
 	float getHeightAt(float queryX, float queryZ, float yOffset);
 	
+	public Vector3f getNormalAt(Vector2f queryXZ);
+	public Vector3f getNormalAt(float queryX, float queryZ);
 }
