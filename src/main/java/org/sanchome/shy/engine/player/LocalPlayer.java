@@ -36,10 +36,12 @@ public class LocalPlayer implements IPlayer {
 	private Node hipNode;
 	private RigidBodyControl hipBody;
 	private Node footNode;
+	private RigidBodyControl footBody;
 	
 	
-	private Vector3f hipOffsetPosition  = new Vector3f(3.0f, -2.0f, 1.0f);
-	private Vector3f footOffsetPosition = new Vector3f();
+	private Vector3f hipOffsetPosition   = new Vector3f(3.0f, -2.0f, 1.0f);
+	private Vector3f footOffsetPosition  = new Vector3f();
+	private Vector3f footControlPosition = new Vector3f();
 
 	private float hipHalfSize = 0.2f;
 	private float legPartRadius = 0.1f;
@@ -47,6 +49,7 @@ public class LocalPlayer implements IPlayer {
 	private float legPartWeight = 2.0f;
 	private float footRadius = 0.15f;
 	private float footLength = 0.25f;
+	private float footWeight = 100.0f;
 	
 	public void init(AssetManager assetManager, Camera camera, Node rootNode, BulletAppState bulletAppState) {
 		this.camera = camera;
@@ -100,6 +103,8 @@ public class LocalPlayer implements IPlayer {
 		ConeJoint legTopJoint = new ConeJoint(hipBody, legTopBody, Vector3f.UNIT_Y.negate().multLocal(hipHalfSize), Vector3f.UNIT_X.mult(legPartLength/2.0f));
 		legTopJoint.setCollisionBetweenLinkedBodys(false);
 		bulletAppState.getPhysicsSpace().add(legTopJoint);
+		legTopJoint.setLimit(FastMath.QUARTER_PI, FastMath.QUARTER_PI, 0.0f);
+		
 		
 		// Bottom Leg (rotule)
 		Node legBottomNode = new Node("LegBottom-Node");
@@ -117,11 +122,13 @@ public class LocalPlayer implements IPlayer {
 		ConeJoint legBottomJoint = new ConeJoint(legTopBody, legBottomBody, Vector3f.UNIT_X.negate().multLocal(legPartLength/2.0f), Vector3f.UNIT_X.mult(legPartLength/2.0f));
 		legBottomJoint.setCollisionBetweenLinkedBodys(false);
 		bulletAppState.getPhysicsSpace().add(legBottomJoint);
+		legTopJoint.setLimit(FastMath.QUARTER_PI, FastMath.QUARTER_PI, 0.0f);
+		
 		
 		// Bottom Leg (rotule)
 		footNode = new Node("Foot-Node");
 		CapsuleCollisionShape footShape = new CapsuleCollisionShape(footRadius, footLength, 0);
-		RigidBodyControl footBody = new RigidBodyControl(footShape, 0.0f);
+		footBody = new RigidBodyControl(footShape, footWeight);
 		footBody.setCollisionGroup(0);
 		footBody.setKinematic(true);
 		footNode.addControl(footBody);
@@ -135,8 +142,10 @@ public class LocalPlayer implements IPlayer {
 		ConeJoint footJoint = new ConeJoint(legBottomBody, footBody, Vector3f.UNIT_X.negate().multLocal(legPartLength/2.0f), Vector3f.UNIT_X.negate().multLocal(footLength/2.0f));
 		footJoint.setCollisionBetweenLinkedBodys(false);
 		bulletAppState.getPhysicsSpace().add(footJoint);
-
-		footOffsetPosition = footBody.getPhysicsLocation().subtract(hipBody.getPhysicsLocation());
+		legTopJoint.setLimit(FastMath.QUARTER_PI, FastMath.QUARTER_PI, 0.0f);
+		
+		System.out.println("Computing foot offset:"+footOffsetPosition );
+		footOffsetPosition = footNode.getLocalTranslation();
 		
 		
 		// A Shoot Mark
@@ -149,7 +158,20 @@ public class LocalPlayer implements IPlayer {
 		
 	}
 
+	private float cumulTpf = 0.0f;
+	private boolean footControlEnabled = false;
+
 	public void simpleUpdate(float tpf) {
+		if (!footControlEnabled) {
+			System.out.println("RAZ Foot");
+			footControlPosition.zero();
+			cumulTpf = 0.0f;
+		} else {
+			System.out.println("Add Foot");
+			footControlPosition.setX(2.0f*FastMath.cos(cumulTpf));
+			cumulTpf += tpf;
+		}
+		
 		Vector3f camDir = camera.getDirection().clone().multLocal(0.6f);
 		Vector3f camLeft = camera.getLeft().clone().multLocal(0.4f);
 		walkDirection.set(0, 0, 0);
@@ -169,10 +191,15 @@ public class LocalPlayer implements IPlayer {
 		player.setWalkDirection(walkDirection);
 		camera.setLocation(player.getPhysicsLocation());
 		
-		float angle = camera.getDirection().clone().multLocal(1.0f, 0.0f, 1.0f).normalizeLocal().angleBetween(Vector3f.UNIT_X);
 		Matrix3f rot = Matrix3f.IDENTITY;
-		rot.fromAngleNormalAxis(angle, Vector3f.UNIT_Y);
+		rot.fromStartEndVectors(Vector3f.UNIT_X, camera.getDirection().clone().multLocal(1.0f, 0.0f, 1.0f).normalizeLocal());
+		//rot.fromAngleNormalAxis(angle, Vector3f.UNIT_Y);
 		intermediateNode.setLocalRotation(rot);
+		//footBody.setPhysicsLocation(footOffsetPosition);
+		System.out.println("footOffsetPosition:"+footOffsetPosition+" footControlPosition:"+footControlPosition);
+		Vector3f strangeOffset = new Vector3f(3.125f, -3.2f, 1.0f);
+		footNode.setLocalTranslation(strangeOffset.add(footControlPosition));
+		
 		
 		//System.out.println(camera.getDirection());
 		//intermediateNode.setLocalRotation(camera.getRotation());
@@ -180,7 +207,7 @@ public class LocalPlayer implements IPlayer {
 		//hipNode.setLocalTranslation(player.getPhysicsLocation().add(hipOffsetPosition));
 		//footNode.setLocalTranslation(player.getPhysicsLocation().add(hipOffsetPosition).addLocal(footOffsetPosition));
 	}
-
+	
 	public void onAction(String binding, boolean isPressed, float tpf) {
 
 		if ("Left".equals(binding)) {
@@ -231,6 +258,17 @@ public class LocalPlayer implements IPlayer {
 				} else {
 					rootNode.detachChild(mark);
 				}
+			}
+		} else if (("FootControl").equals(binding)) {
+			if (!isPressed) {
+				System.out.println("RAZ Foot");
+				footControlPosition.zero();
+				footControlPosition.setX(0.0f);
+				cumulTpf = 0.0f;
+			} else {
+				System.out.println("Add Foot");
+				footControlPosition.setX(2.0f*FastMath.cos(cumulTpf));
+				cumulTpf += tpf;
 			}
 		}
 	}

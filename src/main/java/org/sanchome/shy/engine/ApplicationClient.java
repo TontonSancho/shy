@@ -73,6 +73,7 @@ public class ApplicationClient extends SimpleApplication {
 		inputManager.addMapping("Right", new KeyTrigger(KeyInput.KEY_D));
 		inputManager.addMapping("Jump", new KeyTrigger(KeyInput.KEY_SPACE));
 		inputManager.addMapping("Shoot", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
+		inputManager.addMapping("FootControl", new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
 		inputManager.addListener(flyCam, new String[] { "Forward", "Backward", "Left", "Right", "Jump" });
 		
 		// Speed up the cam a bit
@@ -94,7 +95,7 @@ public class ApplicationClient extends SimpleApplication {
 		// Local player
 		localPlayer = new LocalPlayer();
 		localPlayer.init(assetManager, cam, mobilesNode, bulletAppState);
-		inputManager.addListener(localPlayer, "Forward", "Backward", "Left", "Right", "Jump", "Shoot");
+		inputManager.addListener(localPlayer, "Forward", "Backward", "Left", "Right", "Jump", "Shoot", "FootControl");
 
 		// Crates
 		for (int i = 0; i < 1; i++) {
