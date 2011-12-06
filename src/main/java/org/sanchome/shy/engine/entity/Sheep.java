@@ -103,7 +103,7 @@ public class Sheep implements IEntity, IUpdatable {
 		frontWheelNode.addControl(model_phy_frontWheel);
 		rootNode.attachChild(frontWheelNode);
 		bulletAppState.getPhysicsSpace().add(model_phy_frontWheel);
-		model_phy_frontWheel.setFriction(0.5f/*50.0f*/);
+		model_phy_frontWheel.setFriction(50.0f);
 		
 		model_phy_frontWheel.setPhysicsLocation(
 			model_phy.getPhysicsLocation().add(FRONT_WHEEL_OFFSET)
@@ -115,7 +115,7 @@ public class Sheep implements IEntity, IUpdatable {
 		rearWheelNode.addControl(model_phy_rearWheel);
 		rootNode.attachChild(rearWheelNode);
 		bulletAppState.getPhysicsSpace().add(model_phy_rearWheel);
-		model_phy_rearWheel.setFriction(0.5f/*50.0f*/);
+		model_phy_rearWheel.setFriction(50.0f);
 		
 		model_phy_rearWheel.setPhysicsLocation(
 			model_phy.getPhysicsLocation().add(REAR_WHEEL_OFFSET)
@@ -142,8 +142,8 @@ public class Sheep implements IEntity, IUpdatable {
 			motorEnabled = !motorEnabled;
 		}
 		if (motorEnabled) {
-			frontJoint.enableMotor(true, 80.0f, 1.0f);
-			rearJoint.enableMotor(true, 80.0f, 1.0f);
+			frontJoint.enableMotor(true, 80.0f, 0.1f);
+			rearJoint.enableMotor(true, 80.0f, 0.1f);
 		} else {
 			frontJoint.enableMotor(false, 10.0f, 1.0f);
 			rearJoint.enableMotor(false, 10.0f, 1.0f);

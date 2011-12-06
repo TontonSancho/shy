@@ -13,6 +13,8 @@ import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
+import com.jme3.math.Matrix3f;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
@@ -30,18 +32,19 @@ public class LocalPlayer implements IPlayer {
 	private Vector3f walkDirection = new Vector3f();
 	private boolean left = false, right = false, up = false, down = false;
 	
+	private Node intermediateNode;
 	private Node hipNode;
 	private RigidBodyControl hipBody;
 	private Node footNode;
 	
 	
-	private Vector3f hipOffsetPosition  = new Vector3f(10.0f, 0.0f, 1.0f);
+	private Vector3f hipOffsetPosition  = new Vector3f(3.0f, -2.0f, 1.0f);
 	private Vector3f footOffsetPosition = new Vector3f();
 
 	private float hipHalfSize = 0.2f;
 	private float legPartRadius = 0.1f;
 	private float legPartLength = 0.5f;
-	private float legPartWeight = 7.0f;
+	private float legPartWeight = 2.0f;
 	private float footRadius = 0.15f;
 	private float footLength = 0.25f;
 	
@@ -63,6 +66,12 @@ public class LocalPlayer implements IPlayer {
 		
 		bulletAppState.getPhysicsSpace().add(player);
 		
+		intermediateNode = new Node("Intermediate-Node");
+		Matrix3f rot = Matrix3f.IDENTITY;
+		rot.fromAngleNormalAxis(FastMath.HALF_PI, Vector3f.UNIT_Y);
+		intermediateNode.setLocalRotation(rot);
+		playerNode.attachChild(intermediateNode);
+		
 		// Hanche (fixe)
 		hipNode = new Node("Dummy-Node");
 		BoxCollisionShape dummyShape = new BoxCollisionShape(new Vector3f(hipHalfSize, hipHalfSize, hipHalfSize));
@@ -70,7 +79,7 @@ public class LocalPlayer implements IPlayer {
 		hipBody.setCollisionGroup(0);
 		hipBody.setKinematic(true);
 		hipNode.addControl(hipBody);
-		playerNode.attachChild(hipNode);
+		intermediateNode.attachChild(hipNode);
 		hipNode.setLocalTranslation(hipOffsetPosition);
 		//hipBody.setPhysicsLocation(hipOffsetPosition/*player.getPhysicsLocation().add(hipOffsetPosition)*/);
 		bulletAppState.getPhysicsSpace().add(hipBody);
@@ -81,7 +90,7 @@ public class LocalPlayer implements IPlayer {
 		RigidBodyControl legTopBody = new RigidBodyControl(legTopShape, legPartWeight);
 		legTopBody.setCollisionGroup(0);
 		legTopNode.addControl(legTopBody);
-		playerNode.attachChild(legTopNode);
+		intermediateNode.attachChild(legTopNode);
 		legTopNode.setLocalTranslation(hipNode.getLocalTranslation().add(new Vector3f(0.0f, -hipHalfSize, 0.0f)));
 		//legTopBody.setPhysicsLocation(hipBody.getPhysicsLocation().add(new Vector3f(0.0f, -hipHalfSize, 0.0f)));
 		//hipNode.attachChild(legTopNode);
@@ -98,7 +107,7 @@ public class LocalPlayer implements IPlayer {
 		RigidBodyControl legBottomBody = new RigidBodyControl(legBottomShape, legPartWeight);
 		legBottomBody.setCollisionGroup(0);
 		legBottomNode.addControl(legBottomBody);
-		playerNode.attachChild(legBottomNode);
+		intermediateNode.attachChild(legBottomNode);
 		legBottomNode.setLocalTranslation(legTopNode.getLocalTranslation().add(new Vector3f(0.0f, -legPartLength, 0.0f)));
 		//legBottomBody.setPhysicsLocation(legTopBody.getPhysicsLocation().add(new Vector3f(0.0f, -legPartLength, 0.0f)));
 		//legTopNode.attachChild(legBottomNode);
@@ -116,7 +125,7 @@ public class LocalPlayer implements IPlayer {
 		footBody.setCollisionGroup(0);
 		footBody.setKinematic(true);
 		footNode.addControl(footBody);
-		playerNode.attachChild(footNode);
+		intermediateNode.attachChild(footNode);
 		footNode.setLocalTranslation(legBottomNode.getLocalTranslation().add(new Vector3f(footLength/2.0f, -legPartLength, 0.0f)));
 		//footBody.setPhysicsLocation(legBottomBody.getPhysicsLocation().add(new Vector3f(footLength/2.0f, -legPartLength, 0.0f)));
 		//legBottomNode.attachChild(footNode);
@@ -156,9 +165,17 @@ public class LocalPlayer implements IPlayer {
 		if (down) {
 			walkDirection.addLocal(camDir.negate());
 		}
+		walkDirection.set(walkDirection.getX(), 0.0f, walkDirection.getZ());
 		player.setWalkDirection(walkDirection);
 		camera.setLocation(player.getPhysicsLocation());
-		playerNode.lookAt(walkDirection, Vector3f.UNIT_Y);
+		
+		float angle = camera.getDirection().clone().multLocal(1.0f, 0.0f, 1.0f).normalizeLocal().angleBetween(Vector3f.UNIT_X);
+		Matrix3f rot = Matrix3f.IDENTITY;
+		rot.fromAngleNormalAxis(angle, Vector3f.UNIT_Y);
+		intermediateNode.setLocalRotation(rot);
+		
+		//System.out.println(camera.getDirection());
+		//intermediateNode.setLocalRotation(camera.getRotation());
 		//dummyBody.setPhysicsLocation(player.getPhysicsLocation().add(dummyOffsetPosition));
 		//hipNode.setLocalTranslation(player.getPhysicsLocation().add(hipOffsetPosition));
 		//footNode.setLocalTranslation(player.getPhysicsLocation().add(hipOffsetPosition).addLocal(footOffsetPosition));
