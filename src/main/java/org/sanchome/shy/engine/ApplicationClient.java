@@ -18,6 +18,7 @@ import org.sanchome.shy.engine.world.IWorld;
 import com.jme3.app.SimpleApplication;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.BulletAppState.ThreadingType;
+import com.jme3.bullet.PhysicsSpace.BroadphaseType;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.input.controls.KeyTrigger;
@@ -82,7 +83,11 @@ public class ApplicationClient extends SimpleApplication {
 		/** Set up Physics */
 		bulletAppState = new BulletAppState();
 		bulletAppState.setThreadingType(ThreadingType.PARALLEL);
+		bulletAppState.setBroadphaseType(BroadphaseType.SIMPLE);
+		bulletAppState.setWorldMin(new Vector3f(-256.0f, -200.0f, -256.0f));
+		bulletAppState.setWorldMax(new Vector3f(256.0f, 200.0f, 256.0f));
 		stateManager.attach(bulletAppState);
+		bulletAppState.getPhysicsSpace().setMaxSubSteps(10);
 		bulletAppState.getPhysicsSpace().enableDebug(assetManager);
 
 		// Instanciate the chossen terrain
