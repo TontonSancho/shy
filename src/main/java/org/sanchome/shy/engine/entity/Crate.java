@@ -92,11 +92,11 @@ public class Crate implements IEntity {
 	    
 	    bulletAppState.getPhysicsSpace().add(model_phy);
 
-		model_phy.setEnabled(false);
+		//model_phy.setEnabled(false);
 	    model_phy.setFriction(50.0f);
 
 	    
-	    model_geo.setShadowMode(ShadowMode.Cast);
+	    model_geo.setShadowMode(ShadowMode.CastAndReceive);
 	}
 	
 	public boolean isStabilized() {

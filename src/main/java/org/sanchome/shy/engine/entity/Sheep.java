@@ -13,6 +13,7 @@ import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.bullet.joints.HingeJoint;
 import com.jme3.material.Material;
+import com.jme3.math.Matrix3f;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
@@ -24,6 +25,7 @@ import com.jme3.texture.Texture;
 
 public class Sheep implements IEntity, IUpdatable {
 	
+	private static int SHEEP_ORDER = 0;
 	private static final Box BOX;
 	private static Material wall_mat;
 	
@@ -34,6 +36,7 @@ public class Sheep implements IEntity, IUpdatable {
 	private Node rootNode;
 	private BulletAppState bulletAppState;
 	
+	private Node myLocalNode;
 	private Geometry model_geo;
 	
 	private RigidBodyControl model_phy;
@@ -55,6 +58,20 @@ public class Sheep implements IEntity, IUpdatable {
 		this.rootNode = rootNode;
 		this.bulletAppState = bulletAppState;
 		
+		myLocalNode = new Node("Sheep:"+SHEEP_ORDER++);
+		rootNode.attachChild(myLocalNode);
+		
+		float initialPositionX = (float)(500.0*Math.random())-250.0f;
+		float initialPositionZ = (float)(500.0*Math.random())-250.0f;
+		
+		myLocalNode.setLocalTranslation(
+				new Vector3f(
+						initialPositionX,
+						ApplicationClient.getCurrentWorld().getHeightAt(initialPositionX, initialPositionZ, 1.0f),
+						initialPositionZ
+				)
+		);
+		
 		if (wall_mat == null) {
 			wall_mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
 		    TextureKey key = new TextureKey("textures/whool.jpg");
@@ -66,21 +83,13 @@ public class Sheep implements IEntity, IUpdatable {
 		model_geo = new Geometry("sheep", BOX);
 		
 		model_geo.setMaterial(wall_mat);
-		rootNode.attachChild(model_geo);
 		
-		float initialPositionX = 1.0f;//(float)(500.0*Math.random())-250.0f;
-		float initialPositionZ = -30.0f;//(float)(500.0*Math.random())-250.0f;
+		myLocalNode.attachChild(model_geo);
 		
-		/*
-		model_geo.setLocalTranslation(
-				new Vector3f(
-						initialPositionX,
-						ApplicationClient.getCurrentWorld().getHeightAt(initialPositionX, initialPositionZ, 1.0f),
-						initialPositionZ
-				)
-		);
-		*/
+		Matrix3f rot = Matrix3f.IDENTITY.clone();
+		rot.fromStartEndVectors(Vector3f.UNIT_Y, ApplicationClient.getCurrentWorld().getNormalAt(initialPositionX, initialPositionZ) );
 		
+		model_geo.setLocalRotation(rot);
 		
 		BoxCollisionShape bcs = new BoxCollisionShape(new Vector3f(2.0f, 1.0f, 1.4f));
 		model_phy = new RigidBodyControl(bcs, 30.0f);
@@ -130,7 +139,7 @@ public class Sheep implements IEntity, IUpdatable {
 		bulletAppState.getPhysicsSpace().add(rearJoint);
 		
 		
-		model_geo.setShadowMode(ShadowMode.Cast);
+		model_geo.setShadowMode(ShadowMode.CastAndReceive);
 	}
 	
 	private boolean motorEnabled = false;
@@ -142,8 +151,8 @@ public class Sheep implements IEntity, IUpdatable {
 			motorEnabled = !motorEnabled;
 		}
 		if (motorEnabled) {
-			frontJoint.enableMotor(true, 80.0f, 0.1f);
-			rearJoint.enableMotor(true, 80.0f, 0.1f);
+			frontJoint.enableMotor(true, 10.0f, 0.5f);
+			rearJoint.enableMotor(true, 10.0f, 0.5f);
 		} else {
 			frontJoint.enableMotor(false, 10.0f, 1.0f);
 			rearJoint.enableMotor(false, 10.0f, 1.0f);

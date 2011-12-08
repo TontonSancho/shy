@@ -50,10 +50,6 @@ public class BlenderTree implements IEntity {
 	    		)
 	    );
 		
-		
-		
-		
-		
 		model = assetManager.loadModel("models/blender/Tree.mesh.xml" );
 		Node node = (Node)model;
 		Geometry geom = (Geometry) node.getChild("Tree-geom-1");
@@ -70,7 +66,7 @@ public class BlenderTree implements IEntity {
 		
 		model.setLocalScale(initialScale);
 		
-		model.setShadowMode(ShadowMode.Cast);
+		model.setShadowMode(ShadowMode.CastAndReceive);
 		
 		
 		
