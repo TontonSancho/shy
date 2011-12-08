@@ -52,6 +52,8 @@ public class LocalPlayer implements IPlayer {
 	private float footLength = 0.40f;
 	private float footWeight = 1000.0f;
 	
+	private boolean enablePhysic = false;
+	
 	public void init(AssetManager assetManager, Camera camera, Node rootNode, BulletAppState bulletAppState) {
 		this.camera = camera;
 		this.rootNode = rootNode;
@@ -70,6 +72,8 @@ public class LocalPlayer implements IPlayer {
 		rootNode.attachChild(playerNode);
 		
 		bulletAppState.getPhysicsSpace().add(player);
+		
+		if (enablePhysic) {
 		
 		intermediateNode = new Node("Intermediate-Node");
 		Matrix3f rot = Matrix3f.IDENTITY;
@@ -153,6 +157,8 @@ public class LocalPlayer implements IPlayer {
 		System.out.println("Computing foot offset:"+footOffsetPosition );
 		//footNode.setLocalTranslation(footOffsetPosition);
 		
+		}
+		
 		// A Shoot Mark
 		Sphere sphere = new Sphere(30, 30, 0.2f);
 		mark = new Geometry("BOOM!", sphere);
@@ -191,6 +197,8 @@ public class LocalPlayer implements IPlayer {
 		player.setWalkDirection(walkDirection);
 		camera.setLocation(player.getPhysicsLocation());
 		
+		if (enablePhysic) {
+		
 		Matrix3f rot = Matrix3f.IDENTITY;
 		rot.fromStartEndVectors(Vector3f.UNIT_X, camera.getDirection().clone().multLocal(1.0f, 0.0f, 1.0f).normalizeLocal());
 		//rot.fromAngleNormalAxis(angle, Vector3f.UNIT_Y);
@@ -212,6 +220,8 @@ public class LocalPlayer implements IPlayer {
 		//dummyBody.setPhysicsLocation(player.getPhysicsLocation().add(dummyOffsetPosition));
 		//hipNode.setLocalTranslation(player.getPhysicsLocation().add(hipOffsetPosition));
 		//footNode.setLocalTranslation(player.getPhysicsLocation().add(hipOffsetPosition).addLocal(footOffsetPosition));
+		
+		}
 	}
 	
 	public void onAction(String binding, boolean isPressed, float tpf) {

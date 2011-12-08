@@ -19,9 +19,12 @@ import com.jme3.scene.Spatial;
 
 public class BlenderTree implements IEntity {
 	
+	private static int TREE_ORDER = 0;
+	
 	private Node rootNode;
 	private BulletAppState bulletAppState;
 	
+	private Node myLocalNode;
 	private Spatial model;
 	private RigidBodyControl model_phy;
 	
@@ -29,34 +32,47 @@ public class BlenderTree implements IEntity {
 		this.rootNode = rootNode;
 		this.bulletAppState = bulletAppState;
 		
+		myLocalNode = new Node("Tree:"+TREE_ORDER++);
+		rootNode.attachChild(myLocalNode);
+		
 		// Geom part
 		float massOffset = 2.0f;
+		
+		float initialPositionX = (float)(500.0*Math.random())-250.0f;
+		float initialPositionZ = (float)(500.0*Math.random())-250.0f;
+		float initialScale     = (float)(8.0f*Math.random())+4.0f;
+
+		myLocalNode.setLocalTranslation(
+	    		new Vector3f(
+	    				initialPositionX,
+	    				ApplicationClient.getCurrentWorld().getHeightAt(initialPositionX, initialPositionZ, -1.0f) - massOffset*initialScale,
+	    				initialPositionZ
+	    		)
+	    );
+		
+		
+		
+		
 		
 		model = assetManager.loadModel("models/blender/Tree.mesh.xml" );
 		Node node = (Node)model;
 		Geometry geom = (Geometry) node.getChild("Tree-geom-1");
 		System.out.println("model:"+geom);
 		
-		rootNode.attachChild(model);
-		
-		float initialPositionX = (float)(500.0*Math.random())-250.0f;
-		float initialPositionZ = (float)(500.0*Math.random())-250.0f;
-		float initialScale     = (float)(8.0f*Math.random())+4.0f;
-		
+		myLocalNode.attachChild(model);
+
 		geom.setLocalTranslation(0.0f, massOffset, 0.0f);
+		
+		Matrix3f rot = Matrix3f.IDENTITY.clone();
+		rot.fromStartEndVectors(Vector3f.UNIT_Y, ApplicationClient.getCurrentWorld().getNormalAt(initialPositionX, initialPositionZ) );
+		
+		model.setLocalRotation(rot);
 		
 		model.setLocalScale(initialScale);
 		
 		model.setShadowMode(ShadowMode.Cast);
 		
 		
-		model.setLocalTranslation(
-	    		new Vector3f(
-	    				initialPositionX,
-	    				ApplicationClient.getCurrentWorld().getHeightAt(initialPositionX, initialPositionZ, 1.0f) - massOffset*initialScale,
-	    				initialPositionZ
-	    		)
-	    );
 		
 		// Physic part
 		BoxCollisionShape bcs = new BoxCollisionShape(new Vector3f(0.2f*initialScale, 1.0f*initialScale, 0.2f*initialScale));
@@ -65,7 +81,7 @@ public class BlenderTree implements IEntity {
 		ccs.addChildShape(bcs, new Vector3f(-0.0f*initialScale, (massOffset + 1.15f)*initialScale, 0.1f*initialScale));
 		ccs.addChildShape(scs, new Vector3f(0.0f*initialScale, (massOffset + 3.75f)*initialScale, 0.0f*initialScale));
 		
-		model_phy = new RigidBodyControl(ccs, 100.0f*initialScale);
+		model_phy = new RigidBodyControl(ccs, 0.0f /*100.0f*initialScale*/);
 		model.setUserData("RigidBodyControl", model_phy);
 		model.addControl(model_phy);
 		
@@ -74,7 +90,7 @@ public class BlenderTree implements IEntity {
 		
 		model_phy.setFriction(100.0f);
 		
-		model_phy.setEnabled(false);
+		//model_phy.setEnabled(false);
 		
 		
 		

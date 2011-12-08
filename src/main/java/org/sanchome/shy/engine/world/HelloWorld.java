@@ -58,6 +58,7 @@ public class HelloWorld implements IWorld {
 		//heightmap.load();
 		try {
 			heightmap = new HillHeightMap(513, 1000, 50, 100, (byte) 3);
+			heightmap.setHeightScale(0.1f);
 			//heightmap.
 		} catch (Exception ex) {
 		    ex.printStackTrace();
@@ -72,7 +73,7 @@ public class HelloWorld implements IWorld {
 		 * prepared heightmap itself.
 		 */
 		int patchSize = 65;
-		terrain = new TerrainQuad("my terrain", patchSize, 513,	heightmap.getHeightMap());
+		terrain = new TerrainQuad("my terrain", patchSize, 513,	heightmap.getScaledHeightMap());
 		
 		/**
 		 * 4. We give the terrain its material, position & scale it, and attach
@@ -80,7 +81,7 @@ public class HelloWorld implements IWorld {
 		 */
 		terrain.setMaterial(mat_terrain);
 		terrain.setLocalTranslation(0, -100, 0);
-		terrain.setLocalScale(1f, 0.1f, 1f);
+		//terrain.setLocalScale(1f, 0.1f, 1f);
 		rootNode.attachChild(terrain);
 		
 	    terrain.setShadowMode(ShadowMode.Receive);

@@ -110,7 +110,7 @@ public class ApplicationClient extends SimpleApplication {
 		}
 		
 		// Trees
-		for (int i = 0; i < 1; i++) {
+		for (int i = 0; i < 50; i++) {
 			BlenderTree tree = new BlenderTree();
 			tree.init(assetManager, cam, mobilesNode, bulletAppState);
 			//entitiesToStabilizePhysicaly.put(tree, 0);
