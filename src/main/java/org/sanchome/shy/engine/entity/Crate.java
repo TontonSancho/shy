@@ -8,6 +8,7 @@ import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.material.Material;
+import com.jme3.math.Matrix3f;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
@@ -19,8 +20,12 @@ import com.jme3.texture.Texture;
 
 public class Crate implements IEntity {
 	
+	private static int CRATE_ORDER = 0;
+	
 	private Node rootNode;
 	private BulletAppState bulletAppState;
+	
+	private Node myLocalNode;
 	
 	private Geometry model_geo;
 	
@@ -38,6 +43,21 @@ public class Crate implements IEntity {
 		this.rootNode = rootNode;
 		this.bulletAppState = bulletAppState;
 		
+		myLocalNode = new Node("Crate:"+CRATE_ORDER++);
+		rootNode.attachChild(myLocalNode);
+		
+		float initialPositionX = (float)(500.0*Math.random())-250.0f;
+		float initialPositionZ = (float)(500.0*Math.random())-250.0f;
+		float initialScale     = (float)(2.0*Math.random())+1.0f;
+		
+	    myLocalNode.setLocalTranslation(
+	    		new Vector3f(
+	    				initialPositionX,
+	    				ApplicationClient.getCurrentWorld().getHeightAt(initialPositionX, initialPositionZ, 1.1f*initialScale),
+	    				initialPositionZ
+	    		)
+	    );
+		
 		if (wall_mat == null) {
 			wall_mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
 		    TextureKey key = new TextureKey("textures/crate.jpg");
@@ -48,21 +68,13 @@ public class Crate implements IEntity {
 		
 		model_geo = new Geometry("brick", BOX);
 		model_geo.setMaterial(wall_mat);
-		rootNode.attachChild(model_geo);
+		myLocalNode.attachChild(model_geo);
 	    /** Position the brick geometry  */
 		
-		float initialPositionX = (float)(500.0*Math.random())-250.0f;
-		float initialPositionZ = (float)(500.0*Math.random())-250.0f;
-		float initialScale     = (float)(2.0*Math.random())+1.0f;
+		Matrix3f rot = Matrix3f.IDENTITY.clone();
+		rot.fromStartEndVectors(Vector3f.UNIT_Y, ApplicationClient.getCurrentWorld().getNormalAt(initialPositionX, initialPositionZ) );
+	    model_geo.setLocalRotation(rot);
 		
-	    model_geo.setLocalTranslation(
-	    		new Vector3f(
-	    				initialPositionX,
-	    				ApplicationClient.getCurrentWorld().getHeightAt(initialPositionX, initialPositionZ, 1.1f*initialScale),
-	    				initialPositionZ
-	    		)
-	    );
-	    
 	    model_geo.setLocalScale(initialScale);
 	    
 	    /** Make brick physical with a mass > 0.0f. */
@@ -72,9 +84,11 @@ public class Crate implements IEntity {
 	    model_geo.addControl(model_phy);
 	    model_geo.setUserData("RigidBodyControl", model_phy);
 	    
+	    /*
 		model_phy.setAngularSleepingThreshold(100.0f);
 		model_phy.setLinearSleepingThreshold(100.0f);
 		model_phy.setCcdMotionThreshold(100.0f);
+	    */
 	    
 	    bulletAppState.getPhysicsSpace().add(model_phy);
 
