@@ -98,7 +98,7 @@ public class LocalPlayer implements IPlayer, ActionListener, AnalogListener {
 		footNode = new Node("Foot-Node");
 		intermediateFootNode.attachChild(footNode);
 		CapsuleCollisionShape footShape = new CapsuleCollisionShape(footRadius, footLength, 0);
-		footBody = new RigidBodyControl(footShape, footWeight);
+		footBody = new LocalPlayerFootControl(bulletAppState, footShape, footWeight);
 		footBody.setCollisionGroup(0);
 		footBody.setKinematic(true);
 		footNode.addControl(footBody);
@@ -245,8 +245,6 @@ public class LocalPlayer implements IPlayer, ActionListener, AnalogListener {
 		rot.fromStartEndVectors(Vector3f.UNIT_X, camera.getDirection().clone().multLocal(1.0f, 0.0f, 1.0f).normalizeLocal());
 		//rot.fromAngleNormalAxis(angle, Vector3f.UNIT_Y);
 		intermediateNode.setLocalRotation(rot);
-		
-		System.out.println(intermediateFootNode.getLocalRotation());
 		
 		if (enablePhysic) {
 		

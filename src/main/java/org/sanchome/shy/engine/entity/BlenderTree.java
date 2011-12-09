@@ -1,6 +1,8 @@
 package org.sanchome.shy.engine.entity;
 
 import org.sanchome.shy.engine.ApplicationClient;
+import org.sanchome.shy.engine.UserSettings;
+import org.sanchome.shy.engine.UserSettings.ShadowDetails;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.bullet.BulletAppState;
@@ -8,7 +10,6 @@ import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.collision.shapes.CompoundCollisionShape;
 import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
-import com.jme3.math.Quaternion;
 import com.jme3.math.Matrix3f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
@@ -16,6 +17,7 @@ import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.control.LodControl;
 
 public class BlenderTree implements IEntity {
 	
@@ -66,9 +68,7 @@ public class BlenderTree implements IEntity {
 		
 		model.setLocalScale(initialScale);
 		
-		model.setShadowMode(ShadowMode.CastAndReceive);
-		
-		
+		model.setShadowMode(UserSettings.SHADOW_DETAIL == ShadowDetails.FULL ? ShadowMode.CastAndReceive : ShadowMode.Cast);
 		
 		// Physic part
 		BoxCollisionShape bcs = new BoxCollisionShape(new Vector3f(0.2f*initialScale, 1.0f*initialScale, 0.2f*initialScale));

@@ -1,6 +1,8 @@
 package org.sanchome.shy.engine.entity;
 
 import org.sanchome.shy.engine.ApplicationClient;
+import org.sanchome.shy.engine.UserSettings;
+import org.sanchome.shy.engine.UserSettings.ShadowDetails;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.TextureKey;
@@ -92,11 +94,11 @@ public class Crate implements IEntity {
 	    
 	    bulletAppState.getPhysicsSpace().add(model_phy);
 
-		//model_phy.setEnabled(false);
+		model_phy.setEnabled(false);
 	    model_phy.setFriction(50.0f);
 
 	    
-	    model_geo.setShadowMode(ShadowMode.CastAndReceive);
+	    model_geo.setShadowMode(UserSettings.SHADOW_DETAIL == ShadowDetails.FULL ? ShadowMode.CastAndReceive : ShadowMode.Cast);
 	}
 	
 	public boolean isStabilized() {

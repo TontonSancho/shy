@@ -1,6 +1,8 @@
 package org.sanchome.shy.engine.entity;
 
 import org.sanchome.shy.engine.ApplicationClient;
+import org.sanchome.shy.engine.UserSettings;
+import org.sanchome.shy.engine.UserSettings.ShadowDetails;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.TextureKey;
@@ -80,7 +82,7 @@ public class Sheep implements IEntity, IUpdatable {
 		    wall_mat.setTexture("ColorMap", tex);
 		}
 		
-		model_geo = new Geometry("sheep", BOX);
+		model_geo = new Geometry(myLocalNode.getName()+":Geometry", BOX);
 		
 		model_geo.setMaterial(wall_mat);
 		
@@ -95,8 +97,8 @@ public class Sheep implements IEntity, IUpdatable {
 		model_phy = new RigidBodyControl(bcs, 30.0f);
 		model_geo.addControl(model_phy);
 		model_geo.setUserData("RigidBodyControl", model_phy);
-		bulletAppState.getPhysicsSpace().add(model_phy);
-		model_phy.setFriction(5.0f);
+		//bulletAppState.getPhysicsSpace().add(model_phy);
+		//model_phy.setFriction(5.0f);
 		
 		model_phy.setPhysicsLocation(
 			new Vector3f(
@@ -106,25 +108,26 @@ public class Sheep implements IEntity, IUpdatable {
 			)
 		);
 		
-		Node frontWheelNode = new Node("frontWheelNode");
+		Node frontWheelNode = new Node(myLocalNode.getName()+":Node:FrontWheel");
 		CylinderCollisionShape frontWheel = new CylinderCollisionShape(WHEEL_SIZE, 2);
 		model_phy_frontWheel = new RigidBodyControl(frontWheel, .50f);
+		
 		frontWheelNode.addControl(model_phy_frontWheel);
 		rootNode.attachChild(frontWheelNode);
-		bulletAppState.getPhysicsSpace().add(model_phy_frontWheel);
-		model_phy_frontWheel.setFriction(50.0f);
+		//bulletAppState.getPhysicsSpace().add(model_phy_frontWheel);
+		//model_phy_frontWheel.setFriction(50.0f);
 		
 		model_phy_frontWheel.setPhysicsLocation(
 			model_phy.getPhysicsLocation().add(FRONT_WHEEL_OFFSET)
 		);
 		
-		Node rearWheelNode = new Node("rearWheelNode");
+		Node rearWheelNode = new Node(myLocalNode.getName()+":Node:RearWheel");
 		CylinderCollisionShape rearWheel  = new CylinderCollisionShape(WHEEL_SIZE, 2);
 		model_phy_rearWheel = new RigidBodyControl(rearWheel, .50f);
 		rearWheelNode.addControl(model_phy_rearWheel);
 		rootNode.attachChild(rearWheelNode);
-		bulletAppState.getPhysicsSpace().add(model_phy_rearWheel);
-		model_phy_rearWheel.setFriction(50.0f);
+		//bulletAppState.getPhysicsSpace().add(model_phy_rearWheel);
+		//model_phy_rearWheel.setFriction(50.0f);
 		
 		model_phy_rearWheel.setPhysicsLocation(
 			model_phy.getPhysicsLocation().add(REAR_WHEEL_OFFSET)
@@ -139,7 +142,24 @@ public class Sheep implements IEntity, IUpdatable {
 		bulletAppState.getPhysicsSpace().add(rearJoint);
 		
 		
-		model_geo.setShadowMode(ShadowMode.CastAndReceive);
+		model_geo.setShadowMode(UserSettings.SHADOW_DETAIL == ShadowDetails.FULL ? ShadowMode.CastAndReceive : ShadowMode.Cast);
+		
+
+		bulletAppState.getPhysicsSpace().add(model_phy);
+		bulletAppState.getPhysicsSpace().add(model_phy_frontWheel);
+		bulletAppState.getPhysicsSpace().add(model_phy_rearWheel);
+
+		model_phy.setFriction(5.0f);
+		model_phy_frontWheel.setFriction(50.0f);
+		model_phy_rearWheel.setFriction(50.0f);
+		
+		// For debug purpose
+		/*
+		model_phy.setKinematic(true);
+		model_phy_frontWheel.setKinematic(true);
+		model_phy_rearWheel.setKinematic(true);
+		*/
+		
 	}
 	
 	private boolean motorEnabled = false;
