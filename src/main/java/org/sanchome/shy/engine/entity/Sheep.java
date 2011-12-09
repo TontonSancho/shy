@@ -94,7 +94,7 @@ public class Sheep implements IEntity, IUpdatable {
 		model_geo.setLocalRotation(rot);
 		
 		BoxCollisionShape bcs = new BoxCollisionShape(new Vector3f(2.0f, 1.0f, 1.4f));
-		model_phy = new RigidBodyControl(bcs, 30.0f);
+		model_phy = new RigidBodyControl(bcs, 20.0f);
 		model_geo.addControl(model_phy);
 		model_geo.setUserData("RigidBodyControl", model_phy);
 		//bulletAppState.getPhysicsSpace().add(model_phy);

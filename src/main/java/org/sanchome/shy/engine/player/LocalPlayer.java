@@ -68,7 +68,7 @@ public class LocalPlayer implements IPlayer, ActionListener, AnalogListener {
 		this.camera = camera;
 		this.rootNode = rootNode;
 
-		playerNode = new Node("Player-Node");
+		playerNode = new Node("LocalPlayer:Node");
 		
 		CapsuleCollisionShape capsuleShape = new CapsuleCollisionShape(1.5f, 6f, 1);
 		player = new CharacterControl(capsuleShape, 0.0f);
@@ -85,17 +85,17 @@ public class LocalPlayer implements IPlayer, ActionListener, AnalogListener {
 		
 		player.setPhysicsLocation(new Vector3f(0.0f, ApplicationClient.getCurrentWorld().getHeightAt(0.0f, 0.0f, 3.1f), 0.0f));
 		
-		intermediateNode = new Node("Intermediate-Node");
+		intermediateNode = new Node(playerNode.getName()+":Intermediate:Node");
 		Matrix3f rot = Matrix3f.IDENTITY;
 		rot.fromAngleNormalAxis(FastMath.HALF_PI, Vector3f.UNIT_Y);
 		intermediateNode.setLocalRotation(rot);
 		playerNode.attachChild(intermediateNode);
 		
-		intermediateFootNode = new Node("Intermediate Foot Node");
+		intermediateFootNode = new Node(playerNode.getName()+":IntermediateFoot:Node");
 		intermediateNode.attachChild(intermediateFootNode);
 		
 		
-		footNode = new Node("Foot-Node");
+		footNode = new Node(playerNode.getName()+":Foot:Node");
 		intermediateFootNode.attachChild(footNode);
 		CapsuleCollisionShape footShape = new CapsuleCollisionShape(footRadius, footLength, 0);
 		footBody = new LocalPlayerFootControl(bulletAppState, footShape, footWeight);
@@ -339,7 +339,7 @@ public class LocalPlayer implements IPlayer, ActionListener, AnalogListener {
 			if (!isPressed) {
 				theThingToShoot = null;
 				rootNode.detachChild(mark);
-				
+				/*
 				CollisionResults results = new CollisionResults();
 				Ray ray = new Ray(camera.getLocation(), camera.getDirection());
 				rootNode.collideWith(ray, results);
@@ -360,6 +360,7 @@ public class LocalPlayer implements IPlayer, ActionListener, AnalogListener {
 				} else {
 					rootNode.detachChild(mark);
 				}
+				*/
 				
 			}
 		} else if (("FootControl_Lock").equals(binding)) {
