@@ -10,7 +10,7 @@ import com.jme3.scene.Spatial;
 
 public class LocalPlayerFootControl extends RigidBodyControl implements PhysicsCollisionListener {
 	
-	private long lastTimetout;
+	private long lastKickTime;
 	
 	public LocalPlayerFootControl(BulletAppState bulletAppState, CapsuleCollisionShape footShape, float footWeight) {
 		super(footShape, footWeight);
@@ -28,8 +28,11 @@ public class LocalPlayerFootControl extends RigidBodyControl implements PhysicsC
 			toShoot = collisionEvent.getNodeA();
 			localImpact = collisionEvent.getLocalPointA();
 		}
+		else
+			return;
+		
 		if (toShoot!=null) {
-			if (lastTimetout + 1000L > System.currentTimeMillis()) return;
+			if (lastKickTime + 1000L > System.currentTimeMillis()) return;
 			System.out.println("Shoot on:"+toShoot);
 			RigidBodyControl rbc = toShoot.getUserData("RigidBodyControl");
 
@@ -37,7 +40,7 @@ public class LocalPlayerFootControl extends RigidBodyControl implements PhysicsC
 			
 			//if (this.getLinearVelocity().getY() < 1.0f) return;
 			
-			lastTimetout = System.currentTimeMillis();
+			lastKickTime = System.currentTimeMillis();
 			
 			System.out.println("--------         getAppliedImpulse:"+collisionEvent.getAppliedImpulse());
 			System.out.println("-------- getAppliedImpulseLateral1:"+collisionEvent.getAppliedImpulseLateral1());

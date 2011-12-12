@@ -1,6 +1,28 @@
 SHY - Sheep Hate You
 
+Collision group optimization:
+=============================
+Don't forget to maintain this grid when adding new physic elements.
+ 
+                | Terrain | Trees | Crate | Sheep body | Sheep Wheels | Player capsule | Player Foot |
+Terrain         |         |   X   |   X   |      X     |      X       |       X        |             |    
+Trees           |    X    |       |   X   |      X     |              |       X        |             |
+Crate           |    X    |   X   |Friends|      X     |              |       X        |      X      |
+Sheep body      |    X    |   X   |   X   |   Friends  |              |       X        |      X      |
+Sheep wheel 1&2 |    X    |       |       |            |              |                |             |
+Player capsule  |    X    |   X   |   X   |      X     |              |                |             |
+Player Foot     |         |       |   X   |      X     |              |                |             |
+
+
 Changes:
+========
+2011-12-11
++ Updates callbacks optimization (less vector copies/duplications)
++ Collision group optimization
++ Terrain lod 'exaggeration' optimization
++ Enable physic debug pressing F6
++ Right click : Shoot ; Left click : Object lock + foot control
+
 2011-11-24
 + README
 + First git commit

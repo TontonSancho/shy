@@ -1,6 +1,7 @@
 package org.sanchome.shy.engine.entity;
 
 import org.sanchome.shy.engine.ApplicationClient;
+import org.sanchome.shy.engine.CollisionGroup;
 import org.sanchome.shy.engine.UserSettings;
 import org.sanchome.shy.engine.UserSettings.ShadowDetails;
 
@@ -39,18 +40,24 @@ public class BlenderTree implements IEntity {
 		
 		// Geom part
 		float massOffset = 2.0f;
-		
-		float initialPositionX = (float)(500.0*Math.random())-250.0f;
-		float initialPositionZ = (float)(500.0*Math.random())-250.0f;
+
 		float initialScale     = (float)(8.0f*Math.random())+4.0f;
 
-		myLocalNode.setLocalTranslation(
-	    		new Vector3f(
-	    				initialPositionX,
-	    				ApplicationClient.getCurrentWorld().getHeightAt(initialPositionX, initialPositionZ, -1.0f) - massOffset*initialScale,
-	    				initialPositionZ
-	    		)
-	    );
+		Vector3f initialPosition = ApplicationClient.getCurrentWorld().getRandomPosition( -1.0f - massOffset*initialScale );
+		myLocalNode.setLocalTranslation(initialPosition);
+		
+//		Vector3f worldSize = ApplicationClient.getCurrentWorld().getWorldMax().subtractLocal(ApplicationClient.getCurrentWorld().getWorldMin()).multLocal(0.95f);
+//		
+//		float initialPositionX = (float)(worldSize.x*Math.random())-(worldSize.x/2f);
+//		float initialPositionZ = (float)(worldSize.z*Math.random())-(worldSize.z/2f);
+//		
+//		myLocalNode.setLocalTranslation(
+//	    		new Vector3f(
+//	    				initialPositionX,
+//	    				ApplicationClient.getCurrentWorld().getHeightAt(initialPositionX, initialPositionZ, -1.0f) - massOffset*initialScale,
+//	    				initialPositionZ
+//	    		)
+//	    );
 		
 		model = assetManager.loadModel("models/blender/Tree.mesh.xml" );
 		Node node = (Node)model;
@@ -62,7 +69,7 @@ public class BlenderTree implements IEntity {
 		geom.setLocalTranslation(0.0f, massOffset, 0.0f);
 		
 		Matrix3f rot = Matrix3f.IDENTITY.clone();
-		rot.fromStartEndVectors(Vector3f.UNIT_Y, ApplicationClient.getCurrentWorld().getNormalAt(initialPositionX, initialPositionZ) );
+		rot.fromStartEndVectors(Vector3f.UNIT_Y, ApplicationClient.getCurrentWorld().getNormalAt(initialPosition.x, initialPosition.z) );
 		
 		model.setLocalRotation(rot);
 		
@@ -78,6 +85,8 @@ public class BlenderTree implements IEntity {
 		ccs.addChildShape(scs, new Vector3f(0.0f*initialScale, (massOffset + 3.75f)*initialScale, 0.0f*initialScale));
 		
 		model_phy = new RigidBodyControl(ccs, 0.0f /*100.0f*initialScale*/);
+		model_phy.setCollisionGroup(CollisionGroup.TREES);
+		model_phy.setCollideWithGroups(CollisionGroup.TREES_COLLISION_MASK);
 		model.setUserData("RigidBodyControl", model_phy);
 		model.addControl(model_phy);
 		

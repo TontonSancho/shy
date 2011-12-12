@@ -1,4 +1,4 @@
-material Tree
+material Material.001
 {
 	receive_shadows on
 	technique

@@ -1,6 +1,7 @@
 package org.sanchome.shy.engine.player;
 
 import org.sanchome.shy.engine.ApplicationClient;
+import org.sanchome.shy.engine.CollisionGroup;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.bullet.BulletAppState;
@@ -52,7 +53,6 @@ public class LocalPlayer implements IPlayer, ActionListener, AnalogListener {
 	private Vector3f footOffsetPosition  = new Vector3f(0.0f, -4.5f, 1.0f);
 	private Vector3f footControlPosition = new Vector3f();
 
-	private Vector3f lookAtOffset = null;
 	
 	private float hipHalfSize = 0.2f;
 	private float legPartRadius = 0.1f;
@@ -72,7 +72,8 @@ public class LocalPlayer implements IPlayer, ActionListener, AnalogListener {
 		
 		CapsuleCollisionShape capsuleShape = new CapsuleCollisionShape(1.5f, 6f, 1);
 		player = new CharacterControl(capsuleShape, 0.0f);
-		player.setCollisionGroup(0);
+		player.setCollisionGroup(CollisionGroup.PLAYER_CAPSULE);
+		player.setCollideWithGroups(CollisionGroup.PLAYER_CAPSULE_COLLISION_MASK);
 		player.setJumpSpeed(30);
 		player.setFallSpeed(40);
 		player.setGravity(60);
@@ -99,94 +100,13 @@ public class LocalPlayer implements IPlayer, ActionListener, AnalogListener {
 		intermediateFootNode.attachChild(footNode);
 		CapsuleCollisionShape footShape = new CapsuleCollisionShape(footRadius, footLength, 0);
 		footBody = new LocalPlayerFootControl(bulletAppState, footShape, footWeight);
-		footBody.setCollisionGroup(0);
+		footBody.setCollisionGroup(CollisionGroup.PLAYER_FOOT);
+		footBody.setCollideWithGroups(CollisionGroup.PLAYER_FOOT_COLLISION_MASK);
 		footBody.setKinematic(true);
 		footNode.addControl(footBody);
 		bulletAppState.getPhysicsSpace().add(footBody);
 		
 		footNode.setLocalTranslation(footOffsetPosition);
-		
-		
-		
-		if (enablePhysic) {
-			
-			// Hanche (fixe)
-			hipNode = new Node("Dummy-Node");
-			BoxCollisionShape dummyShape = new BoxCollisionShape(new Vector3f(hipHalfSize, hipHalfSize, hipHalfSize));
-			hipBody = new RigidBodyControl(dummyShape, 0.0f);
-			hipBody.setCollisionGroup(0);
-			hipBody.setKinematic(true);
-			hipNode.addControl(hipBody);
-			intermediateNode.attachChild(hipNode);
-			hipNode.setLocalTranslation(hipOffsetPosition);
-			//hipBody.setPhysicsLocation(hipOffsetPosition/*player.getPhysicsLocation().add(hipOffsetPosition)*/);
-			bulletAppState.getPhysicsSpace().add(hipBody);
-	
-			// Top Leg (rotule)
-			Node legTopNode = new Node("LegTop-Node");
-			CapsuleCollisionShape legTopShape = new CapsuleCollisionShape(legPartRadius, legPartLength, 0);
-			RigidBodyControl legTopBody = new RigidBodyControl(legTopShape, legPartWeight);
-			legTopBody.setCollisionGroup(0);
-			legTopNode.addControl(legTopBody);
-			intermediateNode.attachChild(legTopNode);
-			legTopNode.setLocalTranslation(hipNode.getLocalTranslation().add(new Vector3f(0.0f, -hipHalfSize, 0.0f)));
-			//legTopBody.setPhysicsLocation(hipBody.getPhysicsLocation().add(new Vector3f(0.0f, -hipHalfSize, 0.0f)));
-			//hipNode.attachChild(legTopNode);
-			//legTopNode.setLocalTranslation(new Vector3f(0.0f, -hipHalfSize, 0.0f));
-			bulletAppState.getPhysicsSpace().add(legTopBody);
-			
-			ConeJoint legTopJoint = new ConeJoint(hipBody, legTopBody, Vector3f.UNIT_Y.negate().multLocal(hipHalfSize), Vector3f.UNIT_X.mult(legPartLength/2.0f));
-			legTopJoint.setCollisionBetweenLinkedBodys(false);
-			bulletAppState.getPhysicsSpace().add(legTopJoint);
-			legTopJoint.setLimit(FastMath.QUARTER_PI, FastMath.QUARTER_PI, 0.0f);
-			
-			
-			// Bottom Leg (rotule)
-			Node legBottomNode = new Node("LegBottom-Node");
-			CapsuleCollisionShape legBottomShape = new CapsuleCollisionShape(legPartRadius, legPartLength, 0);
-			RigidBodyControl legBottomBody = new RigidBodyControl(legBottomShape, legPartWeight);
-			legBottomBody.setCollisionGroup(0);
-			legBottomNode.addControl(legBottomBody);
-			intermediateNode.attachChild(legBottomNode);
-			legBottomNode.setLocalTranslation(legTopNode.getLocalTranslation().add(new Vector3f(0.0f, -legPartLength -legPartRadius, 0.0f)));
-			//legBottomBody.setPhysicsLocation(legTopBody.getPhysicsLocation().add(new Vector3f(0.0f, -legPartLength, 0.0f)));
-			//legTopNode.attachChild(legBottomNode);
-			//legBottomNode.setLocalTranslation(new Vector3f(0.0f, -legPartLength, 0.0f));
-			bulletAppState.getPhysicsSpace().add(legBottomBody);
-			
-			ConeJoint legBottomJoint = new ConeJoint(legTopBody, legBottomBody, Vector3f.UNIT_X.negate().multLocal(legPartLength/2.0f), Vector3f.UNIT_X.mult(legPartLength/2.0f));
-			legBottomJoint.setCollisionBetweenLinkedBodys(false);
-			bulletAppState.getPhysicsSpace().add(legBottomJoint);
-			legTopJoint.setLimit(FastMath.QUARTER_PI, FastMath.QUARTER_PI, 0.0f);
-			
-			
-			intermediateFootNode = new Node("Intermediate Foot Node");
-			intermediateNode.attachChild(intermediateFootNode);
-			
-			// Foot (rotule)
-			footNode = new Node("Foot-Node");
-			footShape = new CapsuleCollisionShape(footRadius, footLength, 0);
-			footBody = new RigidBodyControl(footShape, footWeight);
-			footBody.setCollisionGroup(0);
-			footBody.setKinematic(true);
-			footNode.addControl(footBody);
-			intermediateFootNode.attachChild(footNode);
-			footNode.setLocalTranslation(legBottomNode.getLocalTranslation().add(new Vector3f(footLength/2.0f, -legPartLength -footRadius, 0.0f)));
-			//footBody.setPhysicsLocation(legBottomBody.getPhysicsLocation().add(new Vector3f(footLength/2.0f, -legPartLength, 0.0f)));
-			//legBottomNode.attachChild(footNode);
-			//footNode.setLocalTranslation(new Vector3f(footLength/2.0f, -legPartLength, 0.0f));
-			bulletAppState.getPhysicsSpace().add(footBody);
-			
-			ConeJoint footJoint = new ConeJoint(legBottomBody, footBody, Vector3f.UNIT_X.negate().multLocal(legPartLength/2.0f), Vector3f.UNIT_X.negate().multLocal(footLength/2.0f));
-			footJoint.setCollisionBetweenLinkedBodys(false);
-			bulletAppState.getPhysicsSpace().add(footJoint);
-			legTopJoint.setLimit(FastMath.QUARTER_PI, FastMath.QUARTER_PI, 0.0f);
-			
-			footOffsetPosition = hipOffsetPosition.add(0.0f, -hipHalfSize - legPartLength*2.0f - footRadius, 0.0f); //footNode.getLocalTranslation();
-			System.out.println("Computing foot offset:"+footOffsetPosition );
-			//footNode.setLocalTranslation(footOffsetPosition);
-		
-		}
 		
 		// A Shoot Mark
 		Sphere sphere = new Sphere(30, 30, 0.2f);
@@ -195,17 +115,15 @@ public class LocalPlayer implements IPlayer, ActionListener, AnalogListener {
 		mark_mat.setColor("Color", ColorRGBA.Red);
 		mark.setMaterial(mark_mat);
 		
-		
 	}
-
-	private float cumulTpf = 0.0f;
-	private boolean footControlEnabled = false;
+	
+	private Matrix3f hipOrientation = Matrix3f.IDENTITY.clone();
+	private Matrix3f rotX = Matrix3f.IDENTITY.clone();
+	private Matrix3f rotZ = Matrix3f.IDENTITY.clone();
+	private RigidBodyControl theThingToShoot = null;
+	private Vector3f lookAtOffset = null;
 
 	public void simpleUpdate(float tpf) {
-		if (footControlEnabled) {
-			footControlPosition.setX(0.8f*FastMath.sin(-cumulTpf*8.0f));
-			cumulTpf += tpf;
-		}
 		
 		Vector3f camDir = camera.getDirection().clone().multLocal(0.3f*playerSpeed);
 		Vector3f camLeft = camera.getLeft().clone().multLocal(0.2f*playerSpeed);
@@ -222,69 +140,50 @@ public class LocalPlayer implements IPlayer, ActionListener, AnalogListener {
 		if (down) {
 			walkDirection.addLocal(camDir.negate());
 		}
+		// Suppress Y move component
 		walkDirection.set(walkDirection.getX(), 0.0f, walkDirection.getZ());
+		// Update player position and orientation
 		player.setWalkDirection(walkDirection);
 		camera.setLocation(player.getPhysicsLocation());
 		
+		// Adjust the hip orientation to follow the camera
+		hipOrientation.fromStartEndVectors(Vector3f.UNIT_X, camera.getDirection().clone().multLocal(1.0f, 0.0f, 1.0f).normalizeLocal());
+		intermediateNode.setLocalRotation(hipOrientation);
+		
 		if (theThingToShoot != null) {
-			//camera.lookAt(mark.getLocalTranslation(), Vector3f.UNIT_Y);
+			// Look at the targeted point
 			camera.lookAt(theThingToShoot.getPhysicsLocation().add(lookAtOffset), Vector3f.UNIT_Y);
-		} else {
-			footRadianX = 0.0f;
-			footRadianZ = 0.0f;
+			
+			updateFootOrientation();
 		}
 		
-		Matrix3f footRot = Matrix3f.IDENTITY;
-		footRot.fromAngleNormalAxis(footRadianZ, Vector3f.UNIT_Z);
-		Matrix3f otherRot = Matrix3f.IDENTITY.clone();
-		otherRot.fromAngleNormalAxis(footRadianX, Vector3f.UNIT_X);
-		footRot.multLocal(otherRot);
-		intermediateFootNode.setLocalRotation(footRot);
-		
-		Matrix3f rot = Matrix3f.IDENTITY;
-		rot.fromStartEndVectors(Vector3f.UNIT_X, camera.getDirection().clone().multLocal(1.0f, 0.0f, 1.0f).normalizeLocal());
-		//rot.fromAngleNormalAxis(angle, Vector3f.UNIT_Y);
-		intermediateNode.setLocalRotation(rot);
-		
-		if (enablePhysic) {
-		
-			
-			//footBody.setPhysicsLocation(footOffsetPosition);
-			//System.out.println("footOffsetPosition:"+footOffsetPosition+" footControlPosition:"+footControlPosition);
-			/*
-			Vector3f strangeOffset = new Vector3f(footOffsetPosition.x, footOffsetPosition.y, footOffsetPosition.z);
-			footNode.setLocalTranslation(strangeOffset.add(footControlPosition));
-			*/
-			Matrix3f footRotation = Matrix3f.IDENTITY;
-			footRotation.fromAngleNormalAxis(FastMath.HALF_PI*FastMath.sin(-cumulTpf*1.0f), Vector3f.UNIT_Z);
-			
-			intermediateFootNode.setLocalRotation(footRotation);
-			//footNode.setLocalTranslation(footOffsetPosition.add(footControlPosition));
-			
-			//System.out.println(camera.getDirection());
-			//intermediateNode.setLocalRotation(camera.getRotation());
-			//dummyBody.setPhysicsLocation(player.getPhysicsLocation().add(dummyOffsetPosition));
-			//hipNode.setLocalTranslation(player.getPhysicsLocation().add(hipOffsetPosition));
-			//footNode.setLocalTranslation(player.getPhysicsLocation().add(hipOffsetPosition).addLocal(footOffsetPosition));
-		
-		}
 	}
 	
-	private RigidBodyControl theThingToShoot = null;
+	private void updateFootOrientation() {
+		// Adjust the foot orientation to follow mouse control
+		rotZ.fromAngleNormalAxis(footRadianZ, Vector3f.UNIT_Z);
+		rotX.fromAngleNormalAxis(footRadianX, Vector3f.UNIT_X);
+		
+		rotZ.multLocal(rotX);
+		intermediateFootNode.setLocalRotation(rotZ);
+	}
 	
 	public void onAnalog(String name, float value, float tpf) {
-		if ("FootControl_Left".equals(name)) {
-			footRadianX += value;
-		} else if ("FootControl_Right".equals(name)) {
-			//System.out.println("right"+value);
-			footRadianX -= value;
-		} else if ("FootControl_Up".equals(name)) {
-			//System.out.println("up"+value);
-			footRadianZ += value;
-		} else if ("FootControl_Down".equals(name)) {
-			//System.out.println("down"+value);
-			footRadianZ -= value;
-		} 
+		if (theThingToShoot != null) {
+			// Update foot orientation accumulators
+			if ("FootControl_Left".equals(name)) {
+				footRadianX += value;
+			} else if ("FootControl_Right".equals(name)) {
+				//System.out.println("right"+value);
+				footRadianX -= value;
+			} else if ("FootControl_Up".equals(name)) {
+				//System.out.println("up"+value);
+				footRadianZ += value;
+			} else if ("FootControl_Down".equals(name)) {
+				//System.out.println("down"+value);
+				footRadianZ -= value;
+			}
+		}
 	}
 	
 	public void onAction(String binding, boolean isPressed, float tpf) {
@@ -318,28 +217,7 @@ public class LocalPlayer implements IPlayer, ActionListener, AnalogListener {
 		} else if ("Jump".equals(binding)) {
 			player.jump();
 		} else if (("Shoot").equals(binding)) {
-			if (isPressed) {
-				System.out.println("Click");
-				CollisionResults results = new CollisionResults();
-				Ray ray = new Ray(camera.getLocation(), camera.getDirection());
-				rootNode.collideWith(ray, results);
-				if (results.size() > 0) {
-					CollisionResult closest = results.getClosestCollision();
-					RigidBodyControl rbc = closest.getGeometry().getParent().getUserData("RigidBodyControl");
-					if (rbc==null)
-						rbc = closest.getGeometry().getUserData("RigidBodyControl");
-					if(rbc!=null) {
-						theThingToShoot = rbc;
-						lookAtOffset = closest.getContactPoint().subtract(rbc.getPhysicsLocation());
-					}
-					mark.setLocalTranslation(closest.getContactPoint());
-					rootNode.attachChild(mark);
-				}
-			}
 			if (!isPressed) {
-				theThingToShoot = null;
-				rootNode.detachChild(mark);
-				/*
 				CollisionResults results = new CollisionResults();
 				Ray ray = new Ray(camera.getLocation(), camera.getDirection());
 				rootNode.collideWith(ray, results);
@@ -360,14 +238,32 @@ public class LocalPlayer implements IPlayer, ActionListener, AnalogListener {
 				} else {
 					rootNode.detachChild(mark);
 				}
-				*/
-				
 			}
 		} else if (("FootControl_Lock").equals(binding)) {
-			footControlEnabled = isPressed;
-			if (!isPressed) {
-				footControlPosition.zero();
-				cumulTpf = 0.0f;
+			if (isPressed) {
+				System.out.println("FootControl_Lockz");
+				CollisionResults results = new CollisionResults();
+				Ray ray = new Ray(camera.getLocation(), camera.getDirection());
+				rootNode.collideWith(ray, results);
+				if (results.size() > 0) {
+					CollisionResult closest = results.getClosestCollision();
+					RigidBodyControl rbc = closest.getGeometry().getParent().getUserData("RigidBodyControl");
+					if (rbc==null)
+						rbc = closest.getGeometry().getUserData("RigidBodyControl");
+					if(rbc!=null) {
+						theThingToShoot = rbc;
+						lookAtOffset = closest.getContactPoint().subtract(rbc.getPhysicsLocation());
+					}
+					mark.setLocalTranslation(closest.getContactPoint());
+					rootNode.attachChild(mark);
+				}
+			} else {
+				// The player releases the lock
+				theThingToShoot = null;
+				rootNode.detachChild(mark);
+				footRadianX = 0.0f;
+				footRadianZ = 0.0f;
+				updateFootOrientation();
 			}
 		}
 	}

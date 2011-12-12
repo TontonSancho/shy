@@ -3,11 +3,13 @@ package org.sanchome.shy.engine;
 
 public class UserSettings {
 	
-	public static int SHEEP_NUMBER = 20;
+	public static int SHEEP_NUMBER = 5;
 	
-	public static int TREE_NUMBER = 0;
+	public static int TREE_NUMBER = 50;
 	
-	public static int CRATE_NUMBER = 50;
+	public static int CRATE_NUMBER = 10;
+	
+	public static boolean TERRAIN_LOD_EXAGGERATION = true;
 	
 	public static enum ShadowMode {
 		NONE,
@@ -15,7 +17,7 @@ public class UserSettings {
 		PSSM
 	}
 	
-	public static ShadowMode SHADOW_MODE = ShadowMode.BASIC;
+	public static ShadowMode SHADOW_MODE = ShadowMode.NONE;
 	
 	/**
 	 *  512, 1024, 2048, ...
@@ -27,6 +29,6 @@ public class UserSettings {
 		FULL
 	}
 	
-	public static ShadowDetails SHADOW_DETAIL = ShadowDetails.FULL;
+	public static ShadowDetails SHADOW_DETAIL = ShadowDetails.SIMPLE;
 	
 }

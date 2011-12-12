@@ -1,6 +1,7 @@
 package org.sanchome.shy.engine.entity;
 
 import org.sanchome.shy.engine.ApplicationClient;
+import org.sanchome.shy.engine.CollisionGroup;
 import org.sanchome.shy.engine.UserSettings;
 import org.sanchome.shy.engine.UserSettings.ShadowDetails;
 
@@ -47,18 +48,24 @@ public class Crate implements IEntity {
 		
 		myLocalNode = new Node("Crate:"+CRATE_ORDER++);
 		rootNode.attachChild(myLocalNode);
-		
-		float initialPositionX = (float)(500.0*Math.random())-250.0f;
-		float initialPositionZ = (float)(500.0*Math.random())-250.0f;
+
 		float initialScale     = (float)(2.0*Math.random())+1.0f;
 		
-	    myLocalNode.setLocalTranslation(
-	    		new Vector3f(
-	    				initialPositionX,
-	    				ApplicationClient.getCurrentWorld().getHeightAt(initialPositionX, initialPositionZ, 1.1f*initialScale),
-	    				initialPositionZ
-	    		)
-	    );
+		Vector3f initialPosition = ApplicationClient.getCurrentWorld().getRandomPosition(1.1f*initialScale);
+		myLocalNode.setLocalTranslation(initialPosition);
+		
+
+//		Vector3f worldSize = ApplicationClient.getCurrentWorld().getWorldMax().subtractLocal(ApplicationClient.getCurrentWorld().getWorldMin()).multLocal(0.95f);
+//		float initialPositionX = (float)(worldSize.x*Math.random())-(worldSize.x/2f);
+//		float initialPositionZ = (float)(worldSize.z*Math.random())-(worldSize.z/2f);
+//		
+//	    myLocalNode.setLocalTranslation(
+//	    		new Vector3f(
+//	    				initialPositionX,
+//	    				ApplicationClient.getCurrentWorld().getHeightAt(initialPositionX, initialPositionZ, 1.1f*initialScale),
+//	    				initialPositionZ
+//	    		)
+//	    );
 		
 		if (wall_mat == null) {
 			wall_mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
@@ -74,7 +81,7 @@ public class Crate implements IEntity {
 	    /** Position the brick geometry  */
 		
 		Matrix3f rot = Matrix3f.IDENTITY.clone();
-		rot.fromStartEndVectors(Vector3f.UNIT_Y, ApplicationClient.getCurrentWorld().getNormalAt(initialPositionX, initialPositionZ) );
+		rot.fromStartEndVectors(Vector3f.UNIT_Y, ApplicationClient.getCurrentWorld().getNormalAt(initialPosition.x, initialPosition.z) );
 	    model_geo.setLocalRotation(rot);
 		
 	    model_geo.setLocalScale(initialScale);
@@ -82,6 +89,9 @@ public class Crate implements IEntity {
 	    /** Make brick physical with a mass > 0.0f. */
 	    BoxCollisionShape bcs = new BoxCollisionShape(new Vector3f(1.0f*initialScale,1.0f*initialScale,1.0f*initialScale));
 	    model_phy = new RigidBodyControl(bcs, 50.0f*initialScale);
+	    model_phy.setCollisionGroup(CollisionGroup.CRATES);
+	    model_phy.setCollideWithGroups(CollisionGroup.CRATES_COLLISION_MASK);
+	    //model_phy.setCollisionGroup(CollisionGroup.GetCollisionGroup(1));
 	    /** Add physical brick to physics space. */
 	    model_geo.addControl(model_phy);
 	    model_geo.setUserData("RigidBodyControl", model_phy);

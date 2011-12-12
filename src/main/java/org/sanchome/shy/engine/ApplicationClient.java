@@ -56,7 +56,7 @@ public class ApplicationClient extends SimpleApplication implements ActionListen
 	@Override
 	public void simpleInitApp() {
 		logger.info("Starting shy client ...");
-
+		
 		// Removes unused default mapping
 		for (String builtinMapping : 
 			new String[] {
@@ -206,43 +206,6 @@ public class ApplicationClient extends SimpleApplication implements ActionListen
 
 	@Override
 	public void simpleUpdate(float tpf) {
-		// Physic/Dynamic stabilization
-		// trick to load large amount of physic objects
-		if (!entitiesToStabilizePhysicaly.isEmpty()) {
-			// IEntity entityToStabilize = null;
-
-			boolean atLeastOneStabilization = false;
-			int i = 0;
-			for (IEntity entityToStabilize : entitiesToStabilizePhysicaly.keySet()) {
-				if (entitiesToStabilizePhysicaly.get(entityToStabilize) > 100) {
-					// Pop it
-					entitiesToStabilizePhysicaly.remove(entityToStabilize);
-					entityToStabilize.detach();
-					atLeastOneStabilization = true;
-					System.out.println("------ Your are too long to stabilize:" + i);
-					break;
-				}
-
-				if (!entityToStabilize.isStabilized()) {
-					System.out.println("Stabilization i:" + i + " on:" + entitiesToStabilizePhysicaly.size());
-					entityToStabilize.enableStabilization();
-					entitiesToStabilizePhysicaly.put(entityToStabilize, entitiesToStabilizePhysicaly.get(entityToStabilize) + 1);
-					atLeastOneStabilization = true;
-					break;
-				} else {
-					entitiesToStabilizePhysicaly.put(entityToStabilize, 0);
-					System.out.println("Stabilized i:" + i + " on:" + entitiesToStabilizePhysicaly.size());
-				}
-				i++;
-			}
-			if (!atLeastOneStabilization) {
-				for (IEntity entityToStabilize : entitiesToStabilizePhysicaly.keySet())
-					entityToStabilize.restoreNormalPhysics();
-				entitiesToStabilizePhysicaly.clear();
-				logger.info("Stabilization done.");
-			}
-		}
-
 		for (IUpdatable updatable : uptatableEntities)
 			updatable.update(tpf);
 
