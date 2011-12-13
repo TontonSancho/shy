@@ -1,6 +1,6 @@
 <mesh>
 	<submeshes>
-		<submesh material="Mouton/SOLID/TEX/mouton.png" usesharedvertices="false">
+		<submesh material="textures/mouton.png" usesharedvertices="false">
 			<faces count="555">
 				<face v1="0" v2="1" v3="2"/>
 				<face v1="3" v2="4" v3="5"/>
