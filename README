@@ -3,7 +3,10 @@ SHY - Sheep Hate You
 Collision group optimization:
 =============================
 Don't forget to maintain this grid when adding new physic elements.
- 
+The principle of this grid is to enumerate collision group to determine who is colliding who.
+'Friend' collision means two entities from the same group id must collide together. In other terms,
+the resulting COLLISION_MASK must not forget to include its own group id.    
+
                 | Terrain | Trees | Crate | Sheep body | Sheep Wheels | Player capsule | Player Foot |
 Terrain         |         |   X   |   X   |      X     |      X       |       X        |             |    
 Trees           |    X    |       |   X   |      X     |              |       X        |             |
@@ -13,9 +16,23 @@ Sheep wheel 1&2 |    X    |       |       |            |              |         
 Player capsule  |    X    |   X   |   X   |      X     |              |                |             |
 Player Foot     |         |       |   X   |      X     |              |                |             |
 
+TODO:
+=====
+- Save/load UserSettings to/from an user properties file
+- Add sounds
+- Add musics
+- Add game menu
+- Add settings menu
+- Add Sheep IA
+
 
 Changes:
 ========
+2011-12-12
++ Retreive and adds the mythic sheep model
++ Introduce UserSettings class to give an easy way to parameterize quality/performance stuff in the whole code 
++ More explanation about collision groups
+
 2011-12-11
 + Updates callbacks optimization (less vector copies/duplications)
 + Collision group optimization
