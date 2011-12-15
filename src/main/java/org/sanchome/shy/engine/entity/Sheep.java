@@ -5,10 +5,12 @@ import org.sanchome.shy.engine.CollisionGroup;
 import org.sanchome.shy.engine.UserSettings;
 import org.sanchome.shy.engine.UserSettings.ShadowDetails;
 
+import com.jme3.animation.AnimChannel;
+import com.jme3.animation.AnimControl;
+import com.jme3.animation.AnimEventListener;
+import com.jme3.animation.LoopMode;
 import com.jme3.asset.AssetManager;
-import com.jme3.asset.TextureKey;
 import com.jme3.bullet.BulletAppState;
-import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.collision.shapes.CylinderCollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
@@ -24,16 +26,15 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
-import com.jme3.texture.Texture;
 
-public class Sheep implements IEntity, IUpdatable {
+public class Sheep implements IEntity, IUpdatable, AnimEventListener {
 	
 	private static int SHEEP_ORDER = 0;
 	private static final Box BOX;
 	private static Material wall_mat;
 	
 	private static final Vector3f WHEEL_SIZE;
-	private static final float    WHEEL_Z_OFFSET = 1.1f;
+	private static final float    WHEEL_Z_OFFSET;
 	private static final Vector3f FRONT_WHEEL_OFFSET;
 	private static final Vector3f REAR_WHEEL_OFFSET;
 	
@@ -50,11 +51,15 @@ public class Sheep implements IEntity, IUpdatable {
 	private HingeJoint frontJoint;
 	private HingeJoint rearJoint;
 	
+	private AnimControl playerControl;
+	private AnimChannel channel_nothing;
+	
 	static {
 		BOX = new Box(Vector3f.ZERO, 1.0f, 1.0f, 1.0f);
 		BOX.scaleTextureCoordinates(new Vector2f(1.0f, 1.0f));
 		
-		WHEEL_SIZE = new Vector3f(0.6f, 2.8f, 1.4f);
+		WHEEL_SIZE         = new Vector3f(0.6f, 1.4f, 1.4f);
+		WHEEL_Z_OFFSET     = 1.2f;
 		FRONT_WHEEL_OFFSET = new Vector3f(1.1f, -WHEEL_Z_OFFSET, 0.0f);
 		REAR_WHEEL_OFFSET  = new Vector3f(-1.7f, -WHEEL_Z_OFFSET, 0.0f);
 	}
@@ -84,15 +89,23 @@ public class Sheep implements IEntity, IUpdatable {
 		model = assetManager.loadModel("models/blender/Sheep.mesh.xml" );
 		Node node = (Node)model;
 		model_geo = (Geometry) node.getChild("Sheep-geom-1");
+		
 		Matrix3f adjustOrientationX = Matrix3f.IDENTITY.clone();
-		adjustOrientationX.fromAngleAxis(FastMath.PI, Vector3f.UNIT_X);
-		Matrix3f adjustOrientationY = Matrix3f.IDENTITY.clone();
-		adjustOrientationY.fromAngleAxis(-FastMath.HALF_PI, Vector3f.UNIT_Y);
+		adjustOrientationX.fromAngleAxis(FastMath.HALF_PI, Vector3f.UNIT_X);
+		
+		Matrix3f adjustOrientationZ = Matrix3f.IDENTITY.clone();
+		adjustOrientationZ.fromAngleAxis(-FastMath.HALF_PI, Vector3f.UNIT_Z);
+		/*
 		model_geo.setLocalRotation(adjustOrientationX.mult(adjustOrientationY));
+		*/
+		model_geo.setLocalRotation(adjustOrientationX.mult(adjustOrientationZ));
 		model_geo.setLocalScale(0.8f);
-		model_geo.setLocalTranslation(new Vector3f(-0.3f, -1.7f, -0.2f));
+		model_geo.setLocalTranslation(new Vector3f(-0.3f, -0.1f, 0.1f));
 		System.out.println("model:"+model_geo);
 		
+		playerControl = model.getControl(AnimControl.class);
+		channel_nothing = playerControl.createChannel();
+		playerControl.addListener(this);
 		/*
 		if (wall_mat == null) {
 			wall_mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
@@ -109,6 +122,7 @@ public class Sheep implements IEntity, IUpdatable {
 		model_geo.setMaterial(wall_mat);
 		*/
 		myLocalNode.attachChild(model);
+		
 		
 		Matrix3f rot = Matrix3f.IDENTITY.clone();
 		rot.fromStartEndVectors(Vector3f.UNIT_Y, ApplicationClient.getCurrentWorld().getNormalAt(initialPosition.x, initialPosition.z) );
@@ -190,27 +204,100 @@ public class Sheep implements IEntity, IUpdatable {
 		model_phy_frontWheel.setKinematic(true);
 		model_phy_rearWheel.setKinematic(true);
 		*/
-		
+		doNothing();
 	}
 	
 	private boolean motorEnabled = false;
 	
 	public void update(float tpf) {
-		//model_phy_frontWheel.setAngularVelocity(Vector3f.ZERO);
-		//model_phy_rearWheel.setAngularVelocity(Vector3f.ZERO);
-		if (Math.random()>0.999) {
-			motorEnabled = !motorEnabled;
-		}
-		if (motorEnabled) {
-			frontJoint.enableMotor(true, 10.0f, 0.1f);
-			rearJoint.enableMotor(true, 10.0f, 0.1f);
-		} else {
-			frontJoint.enableMotor(false, 10.0f, 0.2f);
-			rearJoint.enableMotor(false, 10.0f, 0.2f);
+		if (!motorEnabled) {
 			model_phy_frontWheel.setAngularVelocity(Vector3f.ZERO);
 			model_phy_rearWheel.setAngularVelocity(Vector3f.ZERO);
 		}
+	}
+	
+	public void onAnimChange(AnimControl control, AnimChannel channel, String animName) {
+		// TODO Auto-generated method stub
 		
+	}
+	
+	public void onAnimCycleDone(AnimControl control, AnimChannel channel, String animName) {
+		double rnd = Math.random();
+		if ("nothing".equals(animName)) {
+			if (rnd < 0.6)
+				return; //reloop
+			else if (0.6 <= rnd && rnd < 0.7)
+				walk();
+			else if (0.7 <= rnd && rnd < 0.8)
+				bew();
+			else if (0.8 <= rnd && rnd < 0.9)
+				feed();
+			else if (0.9 <= rnd)
+				dance();
+		} else if ("walk".equals(animName)) {
+			if (rnd<0.8)
+				return; //reloop
+			else
+				doNothing();
+		} else if ("bew".equals(animName)) {
+			if (rnd<0.2)
+				return; //reloop
+			else
+				doNothing();
+		} else if ("feed".equals(animName)) {
+			if (rnd<0.5)
+				return; //reloop
+			else
+				doNothing();
+		} else if ("runaway".equals(animName)) {
+			
+		} else if ("dance".equals(animName)) {
+			if (rnd<0.5)
+				return; //reloop
+			else
+				doNothing();
+		}
+	}
+	
+	private void doNothing() {
+		channel_nothing.setAnim("nothing");
+		stopMotor();
+	}
+	
+	private void walk() {
+		channel_nothing.setAnim("walk");
+		startMotor();
+	}
+	
+	private void bew() {
+		channel_nothing.setAnim("bew");
+		stopMotor();
+	}
+	
+	private void feed() {
+		channel_nothing.setAnim("feed");
+		stopMotor();
+	}
+	
+	private void dance() {
+		channel_nothing.setAnim("dance");
+		stopMotor();
+	}
+	
+	private void startMotor() {
+		if (!motorEnabled) {
+			frontJoint.enableMotor(true, 5.0f, 0.1f);
+			rearJoint.enableMotor(true, 5.0f, 0.1f);
+			motorEnabled=true;
+		}
+	}
+	
+	private void stopMotor() {
+		if (motorEnabled) {
+			frontJoint.enableMotor(false, 5.0f, 0.1f);
+			rearJoint.enableMotor(false, 5.0f, 0.1f);
+			motorEnabled=false;
+		}
 	}
 	
 	public boolean isStabilized() {

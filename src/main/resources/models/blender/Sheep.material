@@ -1,4 +1,4 @@
-material textures/mouton.png
+material Sheep
 {
 	receive_shadows on
 	technique
@@ -12,7 +12,7 @@ material textures/mouton.png
 			specular 0.000000 0.000000 0.000000 12.500000
 			texture_unit
 			{
-				texture mouton.png
+				texture Sheep.png
 			}
 		}
 	}
