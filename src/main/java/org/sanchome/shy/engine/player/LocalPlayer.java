@@ -5,11 +5,10 @@ import org.sanchome.shy.engine.CollisionGroup;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.bullet.BulletAppState;
-import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
 import com.jme3.bullet.control.RigidBodyControl;
-import com.jme3.bullet.joints.ConeJoint;
+import com.jme3.bullet.objects.PhysicsRigidBody;
 import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
 import com.jme3.input.controls.ActionListener;
@@ -40,29 +39,17 @@ public class LocalPlayer implements IPlayer, ActionListener, AnalogListener {
 	
 	
 	private Node intermediateNode;
-	private Node hipNode;
-	private RigidBodyControl hipBody;
 	private Node intermediateFootNode;
 	private Node footNode;
 	private RigidBodyControl footBody;
 	
-	
-	private Vector3f hipOffsetPosition   = new Vector3f(3.0f, -2.0f, 1.0f);
 	private float footRadianX            = 0.0f;
 	private float footRadianZ            = 0.0f;
 	private Vector3f footOffsetPosition  = new Vector3f(0.0f, -4.5f, 1.0f);
-	private Vector3f footControlPosition = new Vector3f();
 
-	
-	private float hipHalfSize = 0.2f;
-	private float legPartRadius = 0.1f;
-	private float legPartLength = 0.7f;
-	private float legPartWeight = 20.0f;
 	private float footRadius = 0.4f;
 	private float footLength = 0.60f;
 	private float footWeight = 1000000.0f;
-	
-	private boolean enablePhysic = false;
 	
 	public void init(AssetManager assetManager, Camera camera, Node rootNode, BulletAppState bulletAppState) {
 		this.camera = camera;
@@ -120,7 +107,7 @@ public class LocalPlayer implements IPlayer, ActionListener, AnalogListener {
 	private Matrix3f hipOrientation = Matrix3f.IDENTITY.clone();
 	private Matrix3f rotX = Matrix3f.IDENTITY.clone();
 	private Matrix3f rotZ = Matrix3f.IDENTITY.clone();
-	private RigidBodyControl theThingToShoot = null;
+	private PhysicsRigidBody theThingToShoot = null;
 	private Vector3f lookAtOffset = null;
 
 	public void simpleUpdate(float tpf) {
@@ -166,6 +153,9 @@ public class LocalPlayer implements IPlayer, ActionListener, AnalogListener {
 		
 		rotZ.multLocal(rotX);
 		intermediateFootNode.setLocalRotation(rotZ);
+		
+		footRadianX = footRadianX / 1.5f;
+		footRadianZ = footRadianZ / 1.5f;
 	}
 	
 	public void onAnalog(String name, float value, float tpf) {
@@ -223,12 +213,12 @@ public class LocalPlayer implements IPlayer, ActionListener, AnalogListener {
 				rootNode.collideWith(ray, results);
 				if (results.size() > 0) {
 					CollisionResult closest = results.getClosestCollision();
-					RigidBodyControl rbc = closest.getGeometry().getParent().getUserData("RigidBodyControl");
+					PhysicsRigidBody rbc = closest.getGeometry().getParent().getUserData("PhysicsRigidBody");
 					if (rbc==null)
-						rbc = closest.getGeometry().getUserData("RigidBodyControl");
+						rbc = closest.getGeometry().getUserData("PhysicsRigidBody");
 					if(rbc!=null) {
 						System.out.println("rbc       :"+rbc);
-						if(!rbc.isEnabled()) rbc.setEnabled(true);
+						//if(!rbc..isEnabled()) rbc.setEnabled(true);
 						rbc.activate();
 						rbc.applyImpulse(camera.getDirection().mult(1000.0f), camera.getLocation().subtract(rbc.getPhysicsLocation()));
 					}
@@ -247,9 +237,9 @@ public class LocalPlayer implements IPlayer, ActionListener, AnalogListener {
 				rootNode.collideWith(ray, results);
 				if (results.size() > 0) {
 					CollisionResult closest = results.getClosestCollision();
-					RigidBodyControl rbc = closest.getGeometry().getParent().getUserData("RigidBodyControl");
+					PhysicsRigidBody rbc = closest.getGeometry().getParent().getUserData("PhysicsRigidBody");
 					if (rbc==null)
-						rbc = closest.getGeometry().getUserData("RigidBodyControl");
+						rbc = closest.getGeometry().getUserData("PhysicsRigidBody");
 					if(rbc!=null) {
 						theThingToShoot = rbc;
 						lookAtOffset = closest.getContactPoint().subtract(rbc.getPhysicsLocation());

@@ -14,7 +14,9 @@ import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.collision.shapes.CylinderCollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
+import com.jme3.bullet.control.VehicleControl;
 import com.jme3.bullet.joints.HingeJoint;
+import com.jme3.bullet.objects.VehicleWheel;
 import com.jme3.material.Material;
 import com.jme3.math.FastMath;
 import com.jme3.math.Matrix3f;
@@ -30,13 +32,10 @@ import com.jme3.scene.shape.Box;
 public class Sheep implements IEntity, IUpdatable, AnimEventListener {
 	
 	private static int SHEEP_ORDER = 0;
-	private static final Box BOX;
-	private static Material wall_mat;
 	
-	private static final Vector3f WHEEL_SIZE;
-	private static final float    WHEEL_Z_OFFSET;
-	private static final Vector3f FRONT_WHEEL_OFFSET;
-	private static final Vector3f REAR_WHEEL_OFFSET;
+	private static final float WHEEL_RADIUS;
+	private static final float WHEEL_Y_OFFSET;
+	private static final float WHEEL_SUSPENSION_LENGTH;
 	
 	private Node rootNode;
 	private BulletAppState bulletAppState;
@@ -45,23 +44,15 @@ public class Sheep implements IEntity, IUpdatable, AnimEventListener {
 	private Spatial model;
 	private Geometry model_geo;
 	
-	private RigidBodyControl model_phy;
-	private RigidBodyControl model_phy_frontWheel;
-	private RigidBodyControl model_phy_rearWheel;
-	private HingeJoint frontJoint;
-	private HingeJoint rearJoint;
+	private VehicleControl model_phy;
 	
 	private AnimControl playerControl;
 	private AnimChannel channel_nothing;
 	
 	static {
-		BOX = new Box(Vector3f.ZERO, 1.0f, 1.0f, 1.0f);
-		BOX.scaleTextureCoordinates(new Vector2f(1.0f, 1.0f));
-		
-		WHEEL_SIZE         = new Vector3f(0.6f, 1.4f, 1.4f);
-		WHEEL_Z_OFFSET     = 1.2f;
-		FRONT_WHEEL_OFFSET = new Vector3f(1.1f, -WHEEL_Z_OFFSET, 0.0f);
-		REAR_WHEEL_OFFSET  = new Vector3f(-1.7f, -WHEEL_Z_OFFSET, 0.0f);
+		WHEEL_RADIUS       = 0.3f;
+		WHEEL_Y_OFFSET     = 0.0f;
+		WHEEL_SUSPENSION_LENGTH = 2.0f;
 	}
 	
 	public void init(AssetManager assetManager, Camera camera, Node rootNode, BulletAppState bulletAppState) {
@@ -71,20 +62,8 @@ public class Sheep implements IEntity, IUpdatable, AnimEventListener {
 		myLocalNode = new Node("Sheep:"+SHEEP_ORDER++);
 		rootNode.attachChild(myLocalNode);
 		
-		Vector3f initialPosition = ApplicationClient.getCurrentWorld().getRandomPosition(WHEEL_Z_OFFSET);
+		Vector3f initialPosition = ApplicationClient.getCurrentWorld().getRandomPosition(WHEEL_Y_OFFSET+WHEEL_RADIUS+WHEEL_SUSPENSION_LENGTH);
 		myLocalNode.setLocalTranslation(initialPosition);
-
-//		Vector3f worldSize = ApplicationClient.getCurrentWorld().getWorldMax().subtractLocal(ApplicationClient.getCurrentWorld().getWorldMin()).multLocal(0.95f);
-//		float initialPositionX = (float)(worldSize.x*Math.random())-(worldSize.x/2f);
-//		float initialPositionZ = (float)(worldSize.z*Math.random())-(worldSize.z/2f);
-		
-//		myLocalNode.setLocalTranslation(
-//				new Vector3f(
-//						initialPositionX,
-//						ApplicationClient.getCurrentWorld().getHeightAt(initialPositionX, initialPositionZ, 1.0f),
-//						initialPositionZ
-//				)
-//		);
 		
 		model = assetManager.loadModel("models/blender/Sheep.mesh.xml" );
 		Node node = (Node)model;
@@ -95,9 +74,6 @@ public class Sheep implements IEntity, IUpdatable, AnimEventListener {
 		
 		Matrix3f adjustOrientationZ = Matrix3f.IDENTITY.clone();
 		adjustOrientationZ.fromAngleAxis(-FastMath.HALF_PI, Vector3f.UNIT_Z);
-		/*
-		model_geo.setLocalRotation(adjustOrientationX.mult(adjustOrientationY));
-		*/
 		model_geo.setLocalRotation(adjustOrientationX.mult(adjustOrientationZ));
 		model_geo.setLocalScale(0.8f);
 		model_geo.setLocalTranslation(new Vector3f(-0.3f, -0.1f, 0.1f));
@@ -106,21 +82,7 @@ public class Sheep implements IEntity, IUpdatable, AnimEventListener {
 		playerControl = model.getControl(AnimControl.class);
 		channel_nothing = playerControl.createChannel();
 		playerControl.addListener(this);
-		/*
-		if (wall_mat == null) {
-			wall_mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-		    TextureKey key = new TextureKey("textures/whool.jpg");
-		    key.setGenerateMips(true);
-		    Texture tex = assetManager.loadTexture(key);
-		    wall_mat.setTexture("ColorMap", tex);
-		}
-		*/
-		/* TODO: Clean
-		model_geo = new Geometry(myLocalNode.getName()+":Geometry", BOX);
-		*/
-		/*
-		model_geo.setMaterial(wall_mat);
-		*/
+		
 		myLocalNode.attachChild(model);
 		
 		
@@ -129,16 +91,26 @@ public class Sheep implements IEntity, IUpdatable, AnimEventListener {
 		
 		model.setLocalRotation(rot);
 		
-		//BoxCollisionShape bcs = new BoxCollisionShape(new Vector3f(2.0f, 1.0f, 1.4f));
 		CapsuleCollisionShape bcs = new CapsuleCollisionShape(1.5f, 2.5f, 0);
-		model_phy = new RigidBodyControl(bcs, 50.0f);
+		
+		//Try vehicule bodyControl
+		float WHEEL_SIDE_OFFSET = 2.0f;//1.5f;
+		float WHEEL_FRONT_OFFSET = 2.0f;//2.0f;
+		model_phy = new VehicleControl(bcs, 50.0f);
+		model_phy.setSuspensionCompression(0.0f);
+		model_phy.addWheel(new Vector3f(WHEEL_FRONT_OFFSET,  -WHEEL_Y_OFFSET, WHEEL_SIDE_OFFSET),  Vector3f.UNIT_Y.negate(),  Vector3f.UNIT_Z, WHEEL_SUSPENSION_LENGTH, WHEEL_RADIUS, true);
+		model_phy.addWheel(new Vector3f(WHEEL_FRONT_OFFSET,  -WHEEL_Y_OFFSET, -WHEEL_SIDE_OFFSET), Vector3f.UNIT_Y.negate(),  Vector3f.UNIT_Z, WHEEL_SUSPENSION_LENGTH, WHEEL_RADIUS, true);
+		model_phy.addWheel(new Vector3f(-WHEEL_FRONT_OFFSET, -WHEEL_Y_OFFSET, WHEEL_SIDE_OFFSET),  Vector3f.UNIT_Y.negate(),  Vector3f.UNIT_Z, WHEEL_SUSPENSION_LENGTH, WHEEL_RADIUS, false);
+		model_phy.addWheel(new Vector3f(-WHEEL_FRONT_OFFSET, -WHEEL_Y_OFFSET, -WHEEL_SIDE_OFFSET), Vector3f.UNIT_Y.negate(),  Vector3f.UNIT_Z, WHEEL_SUSPENSION_LENGTH, WHEEL_RADIUS, false);
+		model.addControl(model_phy);
+		//model_phy = new RigidBodyControl(bcs, 50.0f);
 		model_phy.setCollisionGroup(CollisionGroup.SHEEP_BODY);
 		model_phy.setCollideWithGroups(CollisionGroup.SHEEP_BODY_COLLISION_MASK);
+		//model.addControl(model_phy);
 		
-		model.addControl(model_phy);
-		model.setUserData("RigidBodyControl", model_phy);
-		//bulletAppState.getPhysicsSpace().add(model_phy);
-		//model_phy.setFriction(5.0f);
+		
+		model.setUserData("PhysicsRigidBody", model_phy);
+		
 		
 		model_phy.setPhysicsLocation(
 			new Vector3f(
@@ -148,71 +120,32 @@ public class Sheep implements IEntity, IUpdatable, AnimEventListener {
 			)
 		);
 		
-		Node frontWheelNode = new Node(myLocalNode.getName()+":Node:FrontWheel");
-		CylinderCollisionShape frontWheel = new CylinderCollisionShape(WHEEL_SIZE, 2);
-		model_phy_frontWheel = new RigidBodyControl(frontWheel, .50f);
-		model_phy_frontWheel.setCollisionGroup(CollisionGroup.SHEEP_WHEELS);
-		model_phy_frontWheel.setCollideWithGroups(CollisionGroup.SHEEP_WHEELS_COLLISION_MASK);
-		
-		frontWheelNode.addControl(model_phy_frontWheel);
-		rootNode.attachChild(frontWheelNode);
-		//bulletAppState.getPhysicsSpace().add(model_phy_frontWheel);
-		//model_phy_frontWheel.setFriction(50.0f);
-		
-		model_phy_frontWheel.setPhysicsLocation(
-			model_phy.getPhysicsLocation().add(FRONT_WHEEL_OFFSET)
-		);
-		
-		Node rearWheelNode = new Node(myLocalNode.getName()+":Node:RearWheel");
-		CylinderCollisionShape rearWheel  = new CylinderCollisionShape(WHEEL_SIZE, 2);
-		model_phy_rearWheel = new RigidBodyControl(rearWheel, .50f);
-		model_phy_rearWheel.setCollisionGroup(CollisionGroup.SHEEP_WHEELS);
-		model_phy_rearWheel.setCollideWithGroups(CollisionGroup.SHEEP_WHEELS_COLLISION_MASK);
-		
-		rearWheelNode.addControl(model_phy_rearWheel);
-		rootNode.attachChild(rearWheelNode);
-		//bulletAppState.getPhysicsSpace().add(model_phy_rearWheel);
-		//model_phy_rearWheel.setFriction(50.0f);
-		
-		model_phy_rearWheel.setPhysicsLocation(
-			model_phy.getPhysicsLocation().add(REAR_WHEEL_OFFSET)
-		);
-		
-		frontJoint = new HingeJoint(model_phy, model_phy_frontWheel, FRONT_WHEEL_OFFSET, Vector3f.ZERO, Vector3f.UNIT_Z, Vector3f.UNIT_Z);
-		frontJoint.setCollisionBetweenLinkedBodys(false);
-		bulletAppState.getPhysicsSpace().add(frontJoint);
-		
-		rearJoint =  new HingeJoint(model_phy, model_phy_rearWheel, REAR_WHEEL_OFFSET, Vector3f.ZERO, Vector3f.UNIT_Z, Vector3f.UNIT_Z);
-		rearJoint.setCollisionBetweenLinkedBodys(false);
-		bulletAppState.getPhysicsSpace().add(rearJoint);
-		
-		
 		model.setShadowMode(UserSettings.SHADOW_DETAIL == ShadowDetails.FULL ? ShadowMode.CastAndReceive : ShadowMode.Cast);
 		
 
 		bulletAppState.getPhysicsSpace().add(model_phy);
-		bulletAppState.getPhysicsSpace().add(model_phy_frontWheel);
-		bulletAppState.getPhysicsSpace().add(model_phy_rearWheel);
-
-		model_phy.setFriction(5.0f);
-		model_phy_frontWheel.setFriction(5.0f);
-		model_phy_rearWheel.setFriction(5.0f);
 		
-		// For debug purpose
-		/*
-		model_phy.setKinematic(true);
-		model_phy_frontWheel.setKinematic(true);
-		model_phy_rearWheel.setKinematic(true);
-		*/
+		model_phy.setFriction(0.32f);
+		
+		motorEnabled = true;
 		doNothing();
 	}
 	
 	private boolean motorEnabled = false;
 	
 	public void update(float tpf) {
-		if (!motorEnabled) {
-			model_phy_frontWheel.setAngularVelocity(Vector3f.ZERO);
-			model_phy_rearWheel.setAngularVelocity(Vector3f.ZERO);
+		if (motorEnabled) {
+			//DSP Control
+			float velocity = model_phy.getLinearVelocity().length();
+			if(velocity < 5.0f) {
+				model_phy.accelerate(100.0f);
+				model_phy.brake(0.0f);
+			} else {
+				model_phy.accelerate(0.0f);
+				model_phy.brake(1.0f);
+			}
+		} else {
+			model_phy.brake(1.0f);
 		}
 	}
 	
@@ -230,9 +163,9 @@ public class Sheep implements IEntity, IUpdatable, AnimEventListener {
 				walk();
 			else if (0.7 <= rnd && rnd < 0.8)
 				bew();
-			else if (0.8 <= rnd && rnd < 0.9)
+			else if (0.8 <= rnd && rnd < 0.95)
 				feed();
-			else if (0.9 <= rnd)
+			else if (0.95 <= rnd)
 				dance();
 		} else if ("walk".equals(animName)) {
 			if (rnd<0.8)
@@ -260,44 +193,41 @@ public class Sheep implements IEntity, IUpdatable, AnimEventListener {
 	}
 	
 	private void doNothing() {
-		channel_nothing.setAnim("nothing");
+		channel_nothing.setAnim("nothing", 0.8f);
 		stopMotor();
 	}
 	
 	private void walk() {
-		channel_nothing.setAnim("walk");
+		channel_nothing.setAnim("walk", 0.8f);
+		float radius = FastMath.HALF_PI / 2.0f;
+		model_phy.steer(((float)Math.random()*radius)-(radius/2.0f));
 		startMotor();
 	}
 	
 	private void bew() {
-		channel_nothing.setAnim("bew");
+		channel_nothing.setAnim("bew",0.8f);
 		stopMotor();
 	}
 	
 	private void feed() {
-		channel_nothing.setAnim("feed");
+		channel_nothing.setAnim("feed",0.8f);
 		stopMotor();
 	}
 	
 	private void dance() {
-		channel_nothing.setAnim("dance");
+		channel_nothing.setAnim("dance",0.8f);
 		stopMotor();
 	}
 	
 	private void startMotor() {
-		if (!motorEnabled) {
-			frontJoint.enableMotor(true, 5.0f, 0.1f);
-			rearJoint.enableMotor(true, 5.0f, 0.1f);
-			motorEnabled=true;
-		}
+		model_phy.brake(0.0f);
+		motorEnabled=true;
 	}
 	
 	private void stopMotor() {
-		if (motorEnabled) {
-			frontJoint.enableMotor(false, 5.0f, 0.1f);
-			rearJoint.enableMotor(false, 5.0f, 0.1f);
-			motorEnabled=false;
-		}
+		model_phy.steer(0.0f);
+		model_phy.accelerate(0.0f);
+		motorEnabled=false;
 	}
 	
 	public boolean isStabilized() {

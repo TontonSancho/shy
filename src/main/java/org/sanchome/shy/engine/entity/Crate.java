@@ -94,7 +94,7 @@ public class Crate implements IEntity {
 	    //model_phy.setCollisionGroup(CollisionGroup.GetCollisionGroup(1));
 	    /** Add physical brick to physics space. */
 	    model_geo.addControl(model_phy);
-	    model_geo.setUserData("RigidBodyControl", model_phy);
+	    model_geo.setUserData("PhysicsRigidBody", model_phy);
 	    
 	    /*
 		model_phy.setAngularSleepingThreshold(100.0f);

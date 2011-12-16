@@ -5,6 +5,7 @@ import com.jme3.bullet.collision.PhysicsCollisionEvent;
 import com.jme3.bullet.collision.PhysicsCollisionListener;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
+import com.jme3.bullet.objects.PhysicsRigidBody;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Spatial;
 
@@ -34,7 +35,7 @@ public class LocalPlayerFootControl extends RigidBodyControl implements PhysicsC
 		if (toShoot!=null) {
 			if (lastKickTime + 1000L > System.currentTimeMillis()) return;
 			System.out.println("Shoot on:"+toShoot);
-			RigidBodyControl rbc = toShoot.getUserData("RigidBodyControl");
+			PhysicsRigidBody rbc = toShoot.getUserData("PhysicsRigidBody");
 
 			if (rbc==null) return;
 			
@@ -61,10 +62,9 @@ public class LocalPlayerFootControl extends RigidBodyControl implements PhysicsC
 			rbc.applyImpulse(
 					new Vector3f(
 							this.getLinearVelocity().x,
-							500.0f,
+							Math.abs(this.getLinearVelocity().y/2.0f),
 							this.getLinearVelocity().z)
-					.normalizeLocal()
-					.multLocal(2000.0f)
+					.multLocal(4000000.0f)
 				, localImpact);
 			
 		}

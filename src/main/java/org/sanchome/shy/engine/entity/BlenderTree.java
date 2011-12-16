@@ -87,7 +87,7 @@ public class BlenderTree implements IEntity {
 		model_phy = new RigidBodyControl(ccs, 0.0f /*100.0f*initialScale*/);
 		model_phy.setCollisionGroup(CollisionGroup.TREES);
 		model_phy.setCollideWithGroups(CollisionGroup.TREES_COLLISION_MASK);
-		model.setUserData("RigidBodyControl", model_phy);
+		model.setUserData("PhysicsRigidBody", model_phy);
 		model.addControl(model_phy);
 		
 		bulletAppState.getPhysicsSpace().add(model_phy);
