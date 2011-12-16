@@ -154,8 +154,9 @@ public class LocalPlayer implements IPlayer, ActionListener, AnalogListener {
 		rotZ.multLocal(rotX);
 		intermediateFootNode.setLocalRotation(rotZ);
 		
-		footRadianX = footRadianX / 1.5f;
-		footRadianZ = footRadianZ / 1.5f;
+		//Relax
+		footRadianX = footRadianX / 1.1f;
+		footRadianZ = footRadianZ / 1.1f;
 	}
 	
 	public void onAnalog(String name, float value, float tpf) {

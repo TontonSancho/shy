@@ -64,7 +64,7 @@ public class LocalPlayerFootControl extends RigidBodyControl implements PhysicsC
 							this.getLinearVelocity().x,
 							Math.abs(this.getLinearVelocity().y/2.0f),
 							this.getLinearVelocity().z)
-					.multLocal(4000000.0f)
+					.multLocal(40000000.0f)
 				, localImpact);
 			
 		}
