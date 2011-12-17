@@ -9,22 +9,23 @@ public class CollisionGroup {
 	public static final int SHEEP_WHEELS   = 0x00000010;
 	public static final int PLAYER_CAPSULE = 0x00000020;
 	public static final int PLAYER_FOOT    = 0x00000040;
+	public static final int FENCES         = 0x00000080;
 	
 	// See root README
 	// for more information about this composition ...
-	public static final int TERRAIN_COLLISION_MASK        = TREES | CRATES | SHEEP_BODY | SHEEP_WHEELS | PLAYER_CAPSULE;
+	public static final int TERRAIN_COLLISION_MASK        = TREES | CRATES | SHEEP_BODY | SHEEP_WHEELS | PLAYER_CAPSULE | FENCES;
 	public static final int TREES_COLLISION_MASK          = TERRAIN | CRATES | SHEEP_BODY | PLAYER_CAPSULE;
-	public static final int CRATES_COLLISION_MASK         = TERRAIN | TREES | CRATES | SHEEP_BODY | PLAYER_CAPSULE | PLAYER_FOOT;
-	public static final int SHEEP_BODY_COLLISION_MASK     = TERRAIN | TREES | CRATES | SHEEP_BODY | PLAYER_CAPSULE | PLAYER_FOOT;
+	public static final int CRATES_COLLISION_MASK         = TERRAIN | TREES | CRATES | SHEEP_BODY | PLAYER_CAPSULE | PLAYER_FOOT | FENCES;
+	public static final int SHEEP_BODY_COLLISION_MASK     = TERRAIN | TREES | CRATES | SHEEP_BODY | PLAYER_CAPSULE | PLAYER_FOOT | FENCES;
 	public static final int SHEEP_WHEELS_COLLISION_MASK   = TERRAIN;
-	public static final int PLAYER_CAPSULE_COLLISION_MASK = TERRAIN | TREES | CRATES | SHEEP_BODY;
+	public static final int PLAYER_CAPSULE_COLLISION_MASK = TERRAIN | TREES | CRATES | SHEEP_BODY | FENCES;
 	public static final int PLAYER_FOOT_COLLISION_MASK    = CRATES | SHEEP_BODY;
+	public static final int FENCES_COLLISION_MASK         = TERRAIN | CRATES | SHEEP_BODY | PLAYER_CAPSULE;
 	
 	
 	
 	//
 	// Not yet used
-	public static final int COLLISION_GROUP_08 = 0x00000080;
 	public static final int COLLISION_GROUP_09 = 0x00000100;
 	public static final int COLLISION_GROUP_10 = 0x00000200;
 	public static final int COLLISION_GROUP_11 = 0x00000400;

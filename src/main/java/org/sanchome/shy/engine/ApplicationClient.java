@@ -8,9 +8,11 @@ import java.util.logging.Logger;
 
 import org.sanchome.shy.engine.entity.BlenderTree;
 import org.sanchome.shy.engine.entity.Crate;
+import org.sanchome.shy.engine.entity.Fence;
 import org.sanchome.shy.engine.entity.IEntity;
 import org.sanchome.shy.engine.entity.IUpdatable;
 import org.sanchome.shy.engine.entity.Sheep;
+import org.sanchome.shy.engine.entity.tool.FenceFactory;
 import org.sanchome.shy.engine.player.LocalPlayer;
 import org.sanchome.shy.engine.world.HelloWorld;
 import org.sanchome.shy.engine.world.IWorld;
@@ -145,6 +147,16 @@ public class ApplicationClient extends SimpleApplication implements ActionListen
 			uptatableEntities.add(sheep);
 		}
 
+		// Fences
+		for(int i = 0; i < UserSettings.FENCE_NUMBER; i++) {
+			Fence fence = new Fence();
+			fence.init(assetManager, cam, mobilesNode, bulletAppState);
+			fence.setPosition(getCurrentWorld().getRandomPosition());
+		}
+		
+		// Draw a line of fences
+		FenceFactory.getPencil(assetManager, cam, mobilesNode, bulletAppState).drawLine(150.0f, 150.0f, -150.0f, -150.0f);
+		
 		// Light
 		AmbientLight al = new AmbientLight();
 		al.setColor(ColorRGBA.White.mult(0.5f));
