@@ -31,6 +31,7 @@ import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
+import com.jme3.renderer.Caps;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
@@ -169,7 +170,13 @@ public class ApplicationClient extends SimpleApplication implements ActionListen
 		rootNode.addLight(sun);
 
 		// Sky
-		Spatial sky = SkyFactory.createSky(assetManager, "Textures/Sky/Bright/BrightSky.dds", false);
+		Spatial sky;
+		if (renderer.getCaps().contains(Caps.FloatTexture)) {
+			sky = SkyFactory.createSky(assetManager, "Textures/Sky/Bright/BrightSky.dds", false);
+		} else {
+			// TODO : find a better sky..
+			sky = SkyFactory.createSky(assetManager, "textures/alternateSky.jpg", true);
+		}
 		rootNode.attachChild(sky);
 
 		// Shadow

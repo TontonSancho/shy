@@ -34,11 +34,12 @@ public class FenceFactory {
 		Vector2f end   = new Vector2f(endX, endZ);
 		
 		float distance = start.distance(end);
-		
+
 		float fenceLength = 3.3f*2.0f;
 		// Floors fenceNumber to compute a right rounded fenceStep
 		// Remove an half fence length at start and an half fence length at end. Total: 1 fence length less. 
 		int fenceNumber = (int)FastMath.floor(distance / fenceLength) - 1;
+
 		// Compute the fenceStep now
 		float fenceStep = distance / fenceNumber;
 		
@@ -68,6 +69,5 @@ public class FenceFactory {
 		drawLine(centerX+widthX/2.0f, centerZ-widthZ/2.0f, centerX+widthX/2.0f, centerZ+widthZ/2.0f);
 		drawLine(centerX+widthX/2.0f, centerZ+widthZ/2.0f, centerX-widthX/2.0f, centerZ+widthZ/2.0f);
 		drawLine(centerX-widthX/2.0f, centerZ+widthZ/2.0f, centerX-widthX/2.0f, centerZ-widthZ/2.0f);
-		
 	}
 }

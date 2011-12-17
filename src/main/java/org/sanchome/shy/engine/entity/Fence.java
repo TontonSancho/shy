@@ -69,6 +69,5 @@ public class Fence extends AEntity {
 		Matrix3f orig = rbc.getPhysicsRotationMatrix();
 		rot = orig.mult(rot);
 		rbc.setPhysicsRotation(rot);
-		
 	}
 }

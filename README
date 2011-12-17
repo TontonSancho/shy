@@ -25,11 +25,12 @@ TODO:
 - Add game menu
 - Add settings menu
 - Add good Sheep IA
-- Fix: fence miss-orientation
 
 Changes:
 ========
 2012-12-17
++ FenceFactory supports line and rectangle
++ Fix: fence miss-orientation
 + Poor Sheep IA
 + Fences with draw tool
 + Sheep physic is now a vehicle ... vroum ...
