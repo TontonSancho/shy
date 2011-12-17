@@ -8,6 +8,6 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Node;
 
-public interface IPlayer extends IInitable, ActionListener {
+public interface IPlayer extends IInitable {
 	void simpleUpdate(float tpf);
 }
