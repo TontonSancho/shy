@@ -3,11 +3,11 @@ package org.sanchome.shy.engine;
 
 public class UserSettings {
 	
-	public static int SHEEP_NUMBER = 3;
+	public static int SHEEP_NUMBER = 1;
 	
-	public static int TREE_NUMBER =  60;
+	public static int TREE_NUMBER =  2;
 	
-	public static int CRATE_NUMBER = 20;
+	public static int CRATE_NUMBER = 0;
 
 	public static int FENCE_NUMBER = 10;
 	

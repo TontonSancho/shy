@@ -155,7 +155,8 @@ public class ApplicationClient extends SimpleApplication implements ActionListen
 		}
 		
 		// Draw a line of fences
-		FenceFactory.getPencil(assetManager, cam, mobilesNode, bulletAppState).drawLine(150.0f, 150.0f, -150.0f, -150.0f);
+		FenceFactory.getPencil(assetManager, cam, mobilesNode, bulletAppState).drawLine(150.0f, 100.0f, -150.0f, 90.0f);
+		FenceFactory.getPencil(assetManager, cam, mobilesNode, bulletAppState).drawRectangle(-200.0f, -200.0f, 50.0f, 50.0f);
 		
 		// Light
 		AmbientLight al = new AmbientLight();

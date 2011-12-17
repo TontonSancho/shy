@@ -35,23 +35,39 @@ public class FenceFactory {
 		
 		float distance = start.distance(end);
 		
-		float fenceLength = 2.9f*2.0f;
-		float fenceNumber = distance / fenceLength;
-		// Floors fenceStep to compute again the new
-		fenceNumber = FastMath.floor(fenceNumber);
+		float fenceLength = 3.3f*2.0f;
+		// Floors fenceNumber to compute a right rounded fenceStep
+		// Remove an half fence length at start and an half fence length at end. Total: 1 fence length less. 
+		int fenceNumber = (int)FastMath.floor(distance / fenceLength) - 1;
 		// Compute the fenceStep now
 		float fenceStep = distance / fenceNumber;
 		
 		Vector2f vStep = end.subtract(start).normalizeLocal().multLocal(fenceStep);
 		
-		for(Vector2f currentPosition = start.clone(); currentPosition.distance(end) > fenceLength ; currentPosition.addLocal(vStep)) {
+		// Cause fence local origin is at the middle bottom of itself:
+		// -^----^----^-
+		//  |    |    |
+		// -+----+----+-
+		//  '    0    '
+		// Starting at : start + vStep*0.5
+		// Ending at   : end - vStep*0.5
+		Vector2f currentPosition = start.clone().addLocal(vStep.mult(0.5f));
+		for(int i=0; i<fenceNumber; i++) {
 			// Create a fence at currentPosition
 			Fence f = new Fence();
 			f.init(assetManager, camera, rootNode, bulletAppState);
 			f.setPosition(currentPosition.x, 0.0f, currentPosition.y);
 			// Where we go for the next step
 			f.setYRotation(vStep.getAngle());
+			currentPosition.addLocal(vStep);
 		}
+	}
+	
+	public void drawRectangle(float centerX, float centerZ, float widthX, float widthZ) {
+		drawLine(centerX-widthX/2.0f, centerZ-widthZ/2.0f, centerX+widthX/2.0f, centerZ-widthZ/2.0f);
+		drawLine(centerX+widthX/2.0f, centerZ-widthZ/2.0f, centerX+widthX/2.0f, centerZ+widthZ/2.0f);
+		drawLine(centerX+widthX/2.0f, centerZ+widthZ/2.0f, centerX-widthX/2.0f, centerZ+widthZ/2.0f);
+		drawLine(centerX-widthX/2.0f, centerZ+widthZ/2.0f, centerX-widthX/2.0f, centerZ-widthZ/2.0f);
 		
 	}
 }
