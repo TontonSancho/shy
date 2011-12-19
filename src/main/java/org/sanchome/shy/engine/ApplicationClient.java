@@ -31,6 +31,8 @@ import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
+import com.jme3.post.FilterPostProcessor;
+import com.jme3.post.filters.DepthOfFieldFilter;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Node;
@@ -193,6 +195,15 @@ public class ApplicationClient extends SimpleApplication implements ActionListen
 		}
 
 		initCrossHairs();
+		/* 
+		// Depth of field effect
+		FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
+		DepthOfFieldFilter depthOfFieldFilter = new DepthOfFieldFilter();
+		depthOfFieldFilter.setBlurScale(1.0f);
+		depthOfFieldFilter.setFocusDistance(5.0f);
+		fpp.addFilter(depthOfFieldFilter);
+		viewPort.addProcessor(fpp);
+		*/
 	}
 
 	public void onAction(String name, boolean isPressed, float tpf) {

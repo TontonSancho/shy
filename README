@@ -29,6 +29,8 @@ TODO:
 Changes:
 ========
 2012-12-19
++ Add physic vision on each sheep
++ Fix the ConeCollisionShape constructor error
 + Add bounding physic wall to the HelloWorld
 
 2012-12-17

@@ -8,26 +8,26 @@ import org.sanchome.shy.engine.UserSettings.ShadowDetails;
 import com.jme3.animation.AnimChannel;
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.AnimEventListener;
-import com.jme3.animation.LoopMode;
+import com.jme3.animation.Bone;
 import com.jme3.asset.AssetManager;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
-import com.jme3.bullet.collision.shapes.CylinderCollisionShape;
-import com.jme3.bullet.control.RigidBodyControl;
+import com.jme3.bullet.collision.shapes.ConeCollisionShape;
+import com.jme3.bullet.collision.shapes.FixedConeCollisionShape;
+import com.jme3.bullet.control.GhostControl;
 import com.jme3.bullet.control.VehicleControl;
-import com.jme3.bullet.joints.HingeJoint;
-import com.jme3.bullet.objects.VehicleWheel;
 import com.jme3.material.Material;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Matrix3f;
-import com.jme3.math.Vector2f;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.shape.Box;
+import com.jme3.scene.shape.Sphere;
 
 public class Sheep implements IEntity, IUpdatable, AnimEventListener {
 	
@@ -65,7 +65,14 @@ public class Sheep implements IEntity, IUpdatable, AnimEventListener {
 		Vector3f initialPosition = ApplicationClient.getCurrentWorld().getRandomPosition(WHEEL_Y_OFFSET+WHEEL_RADIUS+WHEEL_SUSPENSION_LENGTH);
 		myLocalNode.setLocalTranslation(initialPosition);
 		
+		Node secondNode = new Node(myLocalNode.getName()+":Second:Node");
+		myLocalNode.attachChild(secondNode);
+		
+		Node thirdNode = new Node(secondNode.getName()+":Third:Node");
+		secondNode.attachChild(thirdNode);
+		
 		model = assetManager.loadModel("models/blender/Sheep.mesh.xml" );
+		thirdNode.attachChild(model);
 		Node node = (Node)model;
 		model_geo = (Geometry) node.getChild("Sheep-geom-1");
 		
@@ -74,22 +81,21 @@ public class Sheep implements IEntity, IUpdatable, AnimEventListener {
 		
 		Matrix3f adjustOrientationZ = Matrix3f.IDENTITY.clone();
 		adjustOrientationZ.fromAngleAxis(-FastMath.HALF_PI, Vector3f.UNIT_Z);
-		model_geo.setLocalRotation(adjustOrientationX.mult(adjustOrientationZ));
-		model_geo.setLocalScale(0.8f);
-		model_geo.setLocalTranslation(new Vector3f(-0.3f, -0.1f, 0.1f));
-		System.out.println("model:"+model_geo);
+		thirdNode.setLocalRotation(adjustOrientationX.mult(adjustOrientationZ));
+		thirdNode.setLocalScale(0.8f);
+		thirdNode.setLocalTranslation(new Vector3f(-0.3f, -0.1f, 0.1f));
 		
 		playerControl = model.getControl(AnimControl.class);
 		channel_nothing = playerControl.createChannel();
 		playerControl.addListener(this);
 		
-		myLocalNode.attachChild(model);
+		myLocalNode.attachChild(secondNode);
 		
 		
 		Matrix3f rot = Matrix3f.IDENTITY.clone();
 		rot.fromStartEndVectors(Vector3f.UNIT_Y, ApplicationClient.getCurrentWorld().getNormalAt(initialPosition.x, initialPosition.z) );
 		
-		model.setLocalRotation(rot);
+		secondNode.setLocalRotation(rot);
 		
 		CapsuleCollisionShape bcs = new CapsuleCollisionShape(1.5f, 2.5f, 0);
 		
@@ -102,7 +108,7 @@ public class Sheep implements IEntity, IUpdatable, AnimEventListener {
 		model_phy.addWheel(new Vector3f(WHEEL_FRONT_OFFSET,  -WHEEL_Y_OFFSET, -WHEEL_SIDE_OFFSET), Vector3f.UNIT_Y.negate(),  Vector3f.UNIT_Z, WHEEL_SUSPENSION_LENGTH, WHEEL_RADIUS, true);
 		model_phy.addWheel(new Vector3f(-WHEEL_FRONT_OFFSET, -WHEEL_Y_OFFSET, WHEEL_SIDE_OFFSET),  Vector3f.UNIT_Y.negate(),  Vector3f.UNIT_Z, WHEEL_SUSPENSION_LENGTH, WHEEL_RADIUS, false);
 		model_phy.addWheel(new Vector3f(-WHEEL_FRONT_OFFSET, -WHEEL_Y_OFFSET, -WHEEL_SIDE_OFFSET), Vector3f.UNIT_Y.negate(),  Vector3f.UNIT_Z, WHEEL_SUSPENSION_LENGTH, WHEEL_RADIUS, false);
-		model.addControl(model_phy);
+		secondNode.addControl(model_phy);
 		//model_phy = new RigidBodyControl(bcs, 50.0f);
 		model_phy.setCollisionGroup(CollisionGroup.SHEEP_BODY);
 		model_phy.setCollideWithGroups(CollisionGroup.SHEEP_BODY_COLLISION_MASK);
@@ -129,6 +135,37 @@ public class Sheep implements IEntity, IUpdatable, AnimEventListener {
 		
 		motorEnabled = true;
 		doNothing();
+		
+		// Sheep Vision
+		
+		float visionCodeHeight = 30.0f;
+		FixedConeCollisionShape visionShape = new FixedConeCollisionShape(visionCodeHeight*0.8f, visionCodeHeight, 1);
+		GhostControl visionControl = new GhostControl(visionShape);
+		Node visionNode = new Node(myLocalNode.getName()+":Vision:Node");
+		visionControl.setCollisionGroup(0x00000000);
+		visionControl.setCollideWithGroups(0x00000000);
+		visionControl.setSpatial(visionNode);
+		visionNode.addControl(visionControl);
+		Quaternion visionRotation = Quaternion.IDENTITY.clone().fromAngleNormalAxis(FastMath.PI+0.6f, Vector3f.UNIT_X);
+		//Quaternion rot2 = Quaternion.IDENTITY.clone().fromAngleNormalAxis(FastMath.QUARTER_PI, Vector3f.UNIT_Z);
+		visionNode.setLocalRotation(visionRotation);
+		visionNode.setLocalTranslation(-0.0f, visionCodeHeight/2.0f, 8.0f);
+		
+		/* FOR TEST PURPOSE ONLY */
+		Sphere sphere = new Sphere(30, 30, 1.0f);
+		Geometry mark = new Geometry("Vision", sphere);
+		Material mark_mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+		mark_mat.setColor("Color", ColorRGBA.Blue);
+		mark.setMaterial(mark_mat);
+		//visionNode.attachChild(mark);
+		
+		bulletAppState.getPhysicsSpace().add(visionControl);
+		
+		Bone headBone = playerControl.getSkeleton().getBone("tete");
+		Node headNode = headBone.getAttachmentsNode();
+		thirdNode.attachChild(headNode);
+		headNode.attachChild(visionNode);
+		
 	}
 	
 	private boolean motorEnabled = false;
