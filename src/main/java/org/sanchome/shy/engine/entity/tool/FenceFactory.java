@@ -16,6 +16,8 @@ public class FenceFactory {
 	private Node rootNode;
 	private BulletAppState bulletAppState;
 	
+	private static final float FENCE_LENGTH = 3.3f*2.0f;
+	
 	private FenceFactory() {};
 	
 	private FenceFactory(AssetManager assetManager, Camera camera, Node rootNode, BulletAppState bulletAppState) {
@@ -34,11 +36,10 @@ public class FenceFactory {
 		Vector2f end   = new Vector2f(endX, endZ);
 		
 		float distance = start.distance(end);
-
-		float fenceLength = 3.3f*2.0f;
+		
 		// Floors fenceNumber to compute a right rounded fenceStep
 		// Remove an half fence length at start and an half fence length at end. Total: 1 fence length less. 
-		int fenceNumber = (int)FastMath.floor(distance / fenceLength) - 1;
+		int fenceNumber = (int)FastMath.floor(distance / FENCE_LENGTH) - 1;
 
 		// Compute the fenceStep now
 		float fenceStep = distance / fenceNumber;
@@ -69,5 +70,20 @@ public class FenceFactory {
 		drawLine(centerX+widthX/2.0f, centerZ-widthZ/2.0f, centerX+widthX/2.0f, centerZ+widthZ/2.0f);
 		drawLine(centerX+widthX/2.0f, centerZ+widthZ/2.0f, centerX-widthX/2.0f, centerZ+widthZ/2.0f);
 		drawLine(centerX-widthX/2.0f, centerZ+widthZ/2.0f, centerX-widthX/2.0f, centerZ-widthZ/2.0f);
+	}
+	
+	public void drawCircle(float centerX, float centerZ, float radius) {
+		float perimetre = FastMath.TWO_PI * radius;
+		int fenceNumber = (int)FastMath.floor(perimetre / FENCE_LENGTH) - 1;
+		float fenceAngularStep = FastMath.TWO_PI / fenceNumber;
+		for(float alpha=0.0f; alpha<FastMath.TWO_PI; alpha += fenceAngularStep) {
+			float fenceX = centerX + radius * FastMath.cos(alpha);
+			float fenceZ = centerZ + radius * FastMath.sin(alpha); 
+			Fence f = new Fence();
+			f.init(assetManager, camera, rootNode, bulletAppState);
+			f.setPosition(fenceX, 0.0f, fenceZ);
+			// Where we go for the next step
+			f.setYRotation(alpha - FastMath.HALF_PI);
+		}
 	}
 }
