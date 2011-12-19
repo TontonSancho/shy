@@ -65,7 +65,7 @@ public class Fence extends AEntity {
 	@Override
 	public void setYRotation(float yRadian) {
 		Matrix3f rot = Matrix3f.IDENTITY.clone();
-		rot.fromAngleAxis(yRadian + FastMath.HALF_PI, Vector3f.UNIT_Y);
+		rot.fromAngleAxis(-yRadian - FastMath.HALF_PI, Vector3f.UNIT_Y);
 		Matrix3f orig = rbc.getPhysicsRotationMatrix();
 		rot = orig.mult(rot);
 		rbc.setPhysicsRotation(rot);

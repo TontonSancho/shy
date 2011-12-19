@@ -61,6 +61,7 @@ public class FenceFactory {
 			f.setPosition(currentPosition.x, 0.0f, currentPosition.y);
 			// Where we go for the next step
 			f.setYRotation(vStep.getAngle());
+			System.out.println("fence angle:"+vStep.getAngle());
 			currentPosition.addLocal(vStep);
 		}
 	}
@@ -84,6 +85,18 @@ public class FenceFactory {
 			f.setPosition(fenceX, 0.0f, fenceZ);
 			// Where we go for the next step
 			f.setYRotation(alpha - FastMath.HALF_PI);
+		}
+	}
+	
+	public void fenceAngleTest() {
+		float alpha = 0.0f;
+		for(float fenceX = -150.0f; fenceX<250.0; fenceX+=FENCE_LENGTH) {
+			Fence f = new Fence();
+			f.init(assetManager, camera, rootNode, bulletAppState);
+			f.setPosition(fenceX, 0.0f, -10.0f);
+			// Where we go for the next step
+			f.setYRotation(alpha);
+			alpha += FastMath.QUARTER_PI/2.0f;
 		}
 	}
 }

@@ -159,6 +159,7 @@ public class ApplicationClient extends SimpleApplication implements ActionListen
 		FenceFactory.getPencil(assetManager, cam, mobilesNode, bulletAppState).drawLine(256.0f, 30.0f, 50.0f, -256.0f);
 		FenceFactory.getPencil(assetManager, cam, mobilesNode, bulletAppState).drawRectangle(-200.0f, -200.0f, 50.0f, 50.0f);
 		FenceFactory.getPencil(assetManager, cam, mobilesNode, bulletAppState).drawCircle(-128.0f, 128.0f, 70.0f);
+		//FenceFactory.getPencil(assetManager, cam, mobilesNode, bulletAppState).fenceAngleTest();
 		
 		// Light
 		AmbientLight al = new AmbientLight();
