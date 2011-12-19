@@ -47,7 +47,7 @@ public class ApplicationClient extends SimpleApplication implements ActionListen
 	private BulletAppState bulletAppState;
 	private boolean physicDebugEnabled = false;
 	private static IWorld world;
-	private Node mobilesNode;
+	private Node shootablesNode;
 	LocalPlayer localPlayer;
 	Map<IEntity, Integer> entitiesToStabilizePhysicaly = new HashMap<IEntity, Integer>();
 	List<IUpdatable> uptatableEntities = new ArrayList<IUpdatable>();
@@ -113,12 +113,12 @@ public class ApplicationClient extends SimpleApplication implements ActionListen
 		world = new HelloWorld();
 		world.init(assetManager, cam, rootNode, bulletAppState);
 
-		mobilesNode = new Node("mobilesNode");
-		rootNode.attachChild(mobilesNode);
+		shootablesNode = new Node("shootablesNode");
+		rootNode.attachChild(shootablesNode);
 
 		// Local player
 		localPlayer = new LocalPlayer();
-		localPlayer.init(assetManager, cam, mobilesNode, bulletAppState);
+		localPlayer.init(assetManager, cam, shootablesNode, bulletAppState);
 		inputManager.addListener(localPlayer,
 				"Forward", "Backward", "Left", "Right", "Jump", "Run", "Shoot", "FootControl_Lock",
 				"FootControl_Left",
@@ -129,37 +129,31 @@ public class ApplicationClient extends SimpleApplication implements ActionListen
 		// Crates
 		for (int i = 0; i < UserSettings.CRATE_NUMBER; i++) {
 			Crate crate = new Crate();
-			crate.init(assetManager, cam, mobilesNode, bulletAppState);
+			crate.init(assetManager, cam, shootablesNode, bulletAppState);
 			// entitiesToStabilizePhysicaly.put(crate, 0);
 		}
 
 		// Trees
 		for (int i = 0; i < UserSettings.TREE_NUMBER; i++) {
 			BlenderTree tree = new BlenderTree();
-			tree.init(assetManager, cam, mobilesNode, bulletAppState);
+			tree.init(assetManager, cam, rootNode, bulletAppState);
 			// entitiesToStabilizePhysicaly.put(tree, 0);
 		}
 
 		// Sheeps
 		for (int i = 0; i < UserSettings.SHEEP_NUMBER; i++) {
 			Sheep sheep = new Sheep();
-			sheep.init(assetManager, cam, mobilesNode, bulletAppState);
+			sheep.init(assetManager, cam, shootablesNode, bulletAppState);
 			// entitiesToStabilizePhysicaly.put(sheep, 0);
 			uptatableEntities.add(sheep);
 		}
 
 		// Fences
-		for(int i = 0; i < UserSettings.FENCE_NUMBER; i++) {
-			Fence fence = new Fence();
-			fence.init(assetManager, cam, mobilesNode, bulletAppState);
-			fence.setPosition(getCurrentWorld().getRandomPosition());
-		}
-		
-		// Draw a line of fences
-		FenceFactory.getPencil(assetManager, cam, mobilesNode, bulletAppState).drawLine(256.0f, 30.0f, 50.0f, -256.0f);
-		FenceFactory.getPencil(assetManager, cam, mobilesNode, bulletAppState).drawRectangle(-200.0f, -200.0f, 50.0f, 50.0f);
-		FenceFactory.getPencil(assetManager, cam, mobilesNode, bulletAppState).drawCircle(-128.0f, 128.0f, 70.0f);
+		FenceFactory.getPencil(assetManager, cam, rootNode, bulletAppState).drawLine(-125.0f, -125.0f, 50.0f, -200.0f);
+		FenceFactory.getPencil(assetManager, cam, rootNode, bulletAppState).drawRectangle(-150.0f, -150.0f, 50.0f, 50.0f);
+		FenceFactory.getPencil(assetManager, cam, rootNode, bulletAppState).drawCircle(-128.0f, 128.0f, 70.0f);
 		//FenceFactory.getPencil(assetManager, cam, mobilesNode, bulletAppState).fenceAngleTest();
+		
 		
 		// Light
 		AmbientLight al = new AmbientLight();

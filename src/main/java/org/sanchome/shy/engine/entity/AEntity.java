@@ -17,11 +17,12 @@ public abstract class AEntity {
 		order = ENTITY_ORDER++;
 	}
 	
-	final public void init(AssetManager assetManager, Camera camera, Node rootNode, BulletAppState bulletAppState) {
+	final public void init(AssetManager assetManager, Camera camera, Node rootNode, BulletAppState bulletAppState, boolean withPhysicsModel) {
 		myNode = new Node(getEntityName()+":Node");
 		rootNode.attachChild(myNode);
 		initForClient(assetManager, myNode);
-		initForServer(assetManager, myNode, bulletAppState);
+		if (withPhysicsModel)
+			initForServer(assetManager, myNode, bulletAppState);
 	}
 
 	public abstract String getEntityName();

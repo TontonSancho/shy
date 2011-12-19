@@ -5,10 +5,13 @@ import java.util.List;
 
 import org.sanchome.shy.engine.CollisionGroup;
 import org.sanchome.shy.engine.UserSettings;
+import org.sanchome.shy.engine.entity.tool.FenceFactory;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.bullet.BulletAppState;
+import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.collision.shapes.CollisionShape;
+import com.jme3.bullet.collision.shapes.CompoundCollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.bullet.util.CollisionShapeFactory;
 import com.jme3.material.Material;
@@ -110,7 +113,26 @@ public class HelloWorld implements IWorld {
 		landscape.setCollideWithGroups(CollisionGroup.TERRAIN_COLLISION_MASK);
 		terrain.addControl(landscape);
 		
-		bulletAppState.getPhysicsSpace().add(terrain);
+		bulletAppState.getPhysicsSpace().add(landscape);
+		
+		// Add fences all around the terrain
+		// but without collision shape
+		FenceFactory.getPencil(assetManager, camera, rootNode, bulletAppState).drawRectangle(0.0f, 0.0f, 450.0f, 450.0f, false);
+		
+		// Now we can put very large boxes to forbid players and entities
+		// to go out from scene
+		BoxCollisionShape northSouth = new BoxCollisionShape(new Vector3f(25.0f, 500.0f, 225.0f));
+		BoxCollisionShape eastWest = new BoxCollisionShape(new Vector3f(225.0f, 500.0f, 25.0f));
+		CompoundCollisionShape walls = new CompoundCollisionShape();
+		walls.addChildShape(northSouth, new Vector3f(250.0f, 400.0f, 0.0f));
+		walls.addChildShape(northSouth, new Vector3f(-250.0f, 400.0f, 0.0f));
+		walls.addChildShape(eastWest,   new Vector3f(0.0f, 400.0f, 250.0f));
+		walls.addChildShape(eastWest,   new Vector3f(0.0f, 400.0f, -250.0f));
+		RigidBodyControl rbcWalls = new RigidBodyControl(walls, 0.0f);
+		rbcWalls.setCollisionGroup(CollisionGroup.TERRAIN);
+		rbcWalls.setCollideWithGroups(CollisionGroup.TERRAIN_COLLISION_MASK);
+		bulletAppState.getPhysicsSpace().add(rbcWalls);
+		terrain.addControl(rbcWalls);
 	}
 	
 	public float getHeightAt(Vector2f queryXZ) {

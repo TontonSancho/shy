@@ -32,6 +32,10 @@ public class FenceFactory {
 	}
 	
 	public void drawLine(float startX, float startZ, float endX, float endZ) {
+		drawLine(startX, startZ, endX, endZ, true);
+	}
+	
+	public void drawLine(float startX, float startZ, float endX, float endZ, boolean withPhysicsModel) {
 		Vector2f start = new Vector2f(startX, startZ);
 		Vector2f end   = new Vector2f(endX, endZ);
 		
@@ -57,20 +61,23 @@ public class FenceFactory {
 		for(int i=0; i<fenceNumber; i++) {
 			// Create a fence at currentPosition
 			Fence f = new Fence();
-			f.init(assetManager, camera, rootNode, bulletAppState);
+			f.init(assetManager, camera, rootNode, bulletAppState, withPhysicsModel);
 			f.setPosition(currentPosition.x, 0.0f, currentPosition.y);
 			// Where we go for the next step
 			f.setYRotation(vStep.getAngle());
-			System.out.println("fence angle:"+vStep.getAngle());
 			currentPosition.addLocal(vStep);
 		}
 	}
 	
 	public void drawRectangle(float centerX, float centerZ, float widthX, float widthZ) {
-		drawLine(centerX-widthX/2.0f, centerZ-widthZ/2.0f, centerX+widthX/2.0f, centerZ-widthZ/2.0f);
-		drawLine(centerX+widthX/2.0f, centerZ-widthZ/2.0f, centerX+widthX/2.0f, centerZ+widthZ/2.0f);
-		drawLine(centerX+widthX/2.0f, centerZ+widthZ/2.0f, centerX-widthX/2.0f, centerZ+widthZ/2.0f);
-		drawLine(centerX-widthX/2.0f, centerZ+widthZ/2.0f, centerX-widthX/2.0f, centerZ-widthZ/2.0f);
+		drawRectangle(centerX, centerZ, widthX, widthZ, true);
+	}
+	
+	public void drawRectangle(float centerX, float centerZ, float widthX, float widthZ, boolean withPhysicModel) {
+		drawLine(centerX-widthX/2.0f, centerZ-widthZ/2.0f, centerX+widthX/2.0f, centerZ-widthZ/2.0f, withPhysicModel);
+		drawLine(centerX+widthX/2.0f, centerZ-widthZ/2.0f, centerX+widthX/2.0f, centerZ+widthZ/2.0f, withPhysicModel);
+		drawLine(centerX+widthX/2.0f, centerZ+widthZ/2.0f, centerX-widthX/2.0f, centerZ+widthZ/2.0f, withPhysicModel);
+		drawLine(centerX-widthX/2.0f, centerZ+widthZ/2.0f, centerX-widthX/2.0f, centerZ-widthZ/2.0f, withPhysicModel);
 	}
 	
 	public void drawCircle(float centerX, float centerZ, float radius) {
@@ -81,7 +88,7 @@ public class FenceFactory {
 			float fenceX = centerX + radius * FastMath.cos(alpha);
 			float fenceZ = centerZ + radius * FastMath.sin(alpha); 
 			Fence f = new Fence();
-			f.init(assetManager, camera, rootNode, bulletAppState);
+			f.init(assetManager, camera, rootNode, bulletAppState, true);
 			f.setPosition(fenceX, 0.0f, fenceZ);
 			// Where we go for the next step
 			f.setYRotation(alpha - FastMath.HALF_PI);
@@ -92,7 +99,7 @@ public class FenceFactory {
 		float alpha = 0.0f;
 		for(float fenceX = -150.0f; fenceX<250.0; fenceX+=FENCE_LENGTH) {
 			Fence f = new Fence();
-			f.init(assetManager, camera, rootNode, bulletAppState);
+			f.init(assetManager, camera, rootNode, bulletAppState, true);
 			f.setPosition(fenceX, 0.0f, -10.0f);
 			// Where we go for the next step
 			f.setYRotation(alpha);

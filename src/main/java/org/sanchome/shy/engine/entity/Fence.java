@@ -31,7 +31,6 @@ public class Fence extends AEntity {
 		
 		// Model loading
 		model = assetManager.loadModel("models/blender/Fence.mesh.xml" );
-		
 		myNode.attachChild(model);
 		
 		// Set shadow options
@@ -54,20 +53,38 @@ public class Fence extends AEntity {
 	@Override
 	public void setPosition(Vector3f position) {
 		float y = ApplicationClient.getCurrentWorld().getHeightAt(position.x, position.z, 0.0f);
-		rbc.setPhysicsLocation(position.setY(y));
-		
-		// Re-orient correctly against terrain
 		Matrix3f rot = Matrix3f.IDENTITY.clone();
 		rot.fromStartEndVectors(Vector3f.UNIT_Y, ApplicationClient.getCurrentWorld().getNormalAt(position.x, position.z) );
-		rbc.setPhysicsRotation(rot);
+		
+		if (rbc == null) {
+			// Location
+			myNode.setLocalTranslation(position.setY(y));
+			
+			// Re-orient correctly against terrain
+			model.setLocalRotation(rot);
+		} else {
+			// Location
+			rbc.setPhysicsLocation(position.setY(y));
+			
+			// Re-orient correctly against terrain
+			rbc.setPhysicsRotation(rot);
+		}
 	}
 	
 	@Override
 	public void setYRotation(float yRadian) {
-		Matrix3f rot = Matrix3f.IDENTITY.clone();
-		rot.fromAngleAxis(-yRadian - FastMath.HALF_PI, Vector3f.UNIT_Y);
-		Matrix3f orig = rbc.getPhysicsRotationMatrix();
-		rot = orig.mult(rot);
-		rbc.setPhysicsRotation(rot);
+		if (rbc == null) {
+			Matrix3f rot = Matrix3f.IDENTITY.clone();
+			rot.fromAngleAxis(-yRadian - FastMath.HALF_PI, Vector3f.UNIT_Y);
+			Matrix3f orig = model.getLocalRotation().toRotationMatrix();
+			rot = orig.mult(rot);
+			model.setLocalRotation(rot);
+		} else {
+			Matrix3f rot = Matrix3f.IDENTITY.clone();
+			rot.fromAngleAxis(-yRadian - FastMath.HALF_PI, Vector3f.UNIT_Y);
+			Matrix3f orig = rbc.getPhysicsRotationMatrix();
+			rot = orig.mult(rot);
+			rbc.setPhysicsRotation(rot);
+		}
 	}
 }
