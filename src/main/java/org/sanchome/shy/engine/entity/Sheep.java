@@ -192,7 +192,7 @@ public class Sheep implements IEntity, IUpdatable, AnimEventListener {
 		FixedConeCollisionShape vision2Shape = new FixedConeCollisionShape(1.0f, visionCodeHeight, 1);
 		SheepSmallVisionControl vision2Control = new SheepSmallVisionControl(this, model_phy, vision2Shape, bulletAppState);
 		vision2Control.setCollisionGroup(0x00000000);
-		vision2Control.setCollideWithGroups(0x00000000 | CollisionGroup.CRATES | CollisionGroup.FENCES | CollisionGroup.TREES | CollisionGroup.PLAYER_CAPSULE);
+		vision2Control.setCollideWithGroups(0x00000000 | CollisionGroup.CRATES | CollisionGroup.FENCES | CollisionGroup.TREES | CollisionGroup.PLAYER_CAPSULE | CollisionGroup.SHEEP_BODY);
 		vision2Control.setSpatial(visionNode);
 		visionNode.addControl(vision2Control);
 		

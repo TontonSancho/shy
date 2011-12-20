@@ -24,7 +24,7 @@ public class SheepSmallVisionControl extends GhostControl implements PhysicsColl
 	}
 
 	public void collision(PhysicsCollisionEvent collisionEvent) {
-		if (this != collisionEvent.getObjectA() && this != collisionEvent.getObjectB()) return;
+		if (this != collisionEvent.getObjectA() && this != collisionEvent.getObjectB() || (vehicleControl == collisionEvent.getObjectA() || vehicleControl == collisionEvent.getObjectB())) return;
 		Spatial theThingToEsquive;
 		if (this == collisionEvent.getObjectA())
 			theThingToEsquive = collisionEvent.getNodeB();
