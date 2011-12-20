@@ -146,10 +146,10 @@ public class Sheep implements IEntity, IUpdatable, AnimEventListener {
 		visionControl.setCollideWithGroups(0x00000000);
 		visionControl.setSpatial(visionNode);
 		visionNode.addControl(visionControl);
-		Quaternion visionRotation = Quaternion.IDENTITY.clone().fromAngleNormalAxis(FastMath.PI+0.6f, Vector3f.UNIT_X);
+		Quaternion visionRotation = Quaternion.IDENTITY.clone().fromAngleNormalAxis(FastMath.PI+0.7f, Vector3f.UNIT_X);
 		//Quaternion rot2 = Quaternion.IDENTITY.clone().fromAngleNormalAxis(FastMath.QUARTER_PI, Vector3f.UNIT_Z);
 		visionNode.setLocalRotation(visionRotation);
-		visionNode.setLocalTranslation(-0.0f, visionCodeHeight/2.0f, 8.0f);
+		visionNode.setLocalTranslation(-0.0f, visionCodeHeight/2.0f, 12.0f);
 		
 		/* FOR TEST PURPOSE ONLY */
 		Sphere sphere = new Sphere(30, 30, 1.0f);
@@ -166,6 +166,15 @@ public class Sheep implements IEntity, IUpdatable, AnimEventListener {
 		thirdNode.attachChild(headNode);
 		headNode.attachChild(visionNode);
 		
+		// Smaller vision cone
+		FixedConeCollisionShape vision2Shape = new FixedConeCollisionShape(1.0f, visionCodeHeight, 1);
+		SheepSmallVisionControl vision2Control = new SheepSmallVisionControl(this, vision2Shape, bulletAppState);
+		vision2Control.setCollisionGroup(0x00000000);
+		vision2Control.setCollideWithGroups(0x00000000 | CollisionGroup.CRATES | CollisionGroup.FENCES | CollisionGroup.TREES | CollisionGroup.PLAYER_CAPSULE);
+		vision2Control.setSpatial(visionNode);
+		visionNode.addControl(vision2Control);
+		
+		bulletAppState.getPhysicsSpace().add(vision2Control);
 	}
 	
 	private boolean motorEnabled = false;

@@ -1,13 +1,13 @@
 package org.sanchome.shy;
 
-import java.io.InputStreamReader;
 import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
 import org.sanchome.shy.engine.ApplicationClient;
 import org.sanchome.shy.engine.ApplicationServer;
 
+import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
-import com.jme3.system.JmeContext.Type;
 
 /**
  * This main SHY Starter class.
@@ -55,7 +55,12 @@ public class Starter {
 			}
 			if (clientWrapped) {
 				System.out.println("Wrapped client");
+				AppSettings settings = new AppSettings(false);
+				settings.setTitle("SHY - Sheep hate you");
+				settings.setSettingsDialogImage("textures/splash-screen.png");
+				//settings.
 				ApplicationClient app = new ApplicationClient();
+				app.setSettings(settings);
 				app.start();
 			}
 		} else {
