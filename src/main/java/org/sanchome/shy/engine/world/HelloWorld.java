@@ -117,7 +117,7 @@ public class HelloWorld implements IWorld {
 		
 		// Add fences all around the terrain
 		// but without collision shape
-		FenceFactory.getPencil(assetManager, camera, rootNode, bulletAppState).drawRectangle(0.0f, 0.0f, 450.0f, 450.0f, false);
+		FenceFactory.getPencil(assetManager, camera, rootNode, bulletAppState).drawRectangle(0.0f, 0.0f, 450.0f, 450.0f, true);
 		
 		// Now we can put very large boxes to forbid players and entities
 		// to go out from scene
